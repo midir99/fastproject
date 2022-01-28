@@ -1,8 +1,7 @@
 import secrets
 
-# from .encoding import force_bytes
-from fastproject.modules.utils.encoding import force_bytes
-# from modules.utils.encoding import force_bytes
+from .encoding import force_bytes
+
 
 RANDOM_STRING_CHARS = \
     'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
