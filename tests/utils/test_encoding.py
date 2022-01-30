@@ -1,10 +1,6 @@
 import datetime
 
-from ..encoding import force_bytes
-
-
-def test_is_protected_type():
-    assert False
+from fastproject.utils.encoding import force_bytes
 
 
 def test_force_bytes_exception():

@@ -1,4 +1,4 @@
-from ..crypto import constant_time_compare, get_random_string
+from fastproject.utils.crypto import constant_time_compare
 
 
 def test_constant_time_compare():
@@ -7,7 +7,3 @@ def test_constant_time_compare():
     assert not constant_time_compare(b'spam', b'eggs')
     assert constant_time_compare('spam', 'spam')
     assert not constant_time_compare('spam', 'eggs')
-
-
-def test_get_random_string():
-    assert False
