@@ -1,6 +1,6 @@
 -- name: insert-skill<!
 -- Insert a single skill
-INSERT INTO skill (name) VALUES (:name);
+INSERT INTO skill (name) VALUES (:name) RETURNING skill_id;
 
 
 -- name: get-skill^

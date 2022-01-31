@@ -14,7 +14,7 @@ router = APIRouter(
 @router.post("")
 async def create_skill(create_skill_dto: CreateSkillDto):
     skill_id = await operations.create_skill(create_skill_dto.name)
-    return SkillDto(skill_id, create_skill_dto.name)
+    return SkillDto(skill_id=skill_id, name=create_skill_dto.name)
 
 
 @router.get("/{skill_id}")
