@@ -8,6 +8,10 @@ INSERT INTO skill (name) VALUES (:name) RETURNING skill_id;
 SELECT * FROM skill WHERE skill_id = :skill_id;
 
 
+-- name: get-all-skill
+SELECT * FROM skill;
+
+
 -- name: insert-common-skills#
 -- Insert common skill records in the "skill" table.
 INSERT INTO skill (name)

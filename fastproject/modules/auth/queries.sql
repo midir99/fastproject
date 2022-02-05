@@ -19,5 +19,5 @@ SELECT uuser.first_name, skill.name
        ON uuser_skill.uuser_id = uuser.uuser_id
 
        LEFT JOIN skill
-       ON uuser_skill.skill_id = skill.skill_id;
+       ON uuser_skill.skill_id = skill.skill_id
  WHERE skill.name IN ('Perseverance', 'Knowledge management', 'Giving clear feedback');
