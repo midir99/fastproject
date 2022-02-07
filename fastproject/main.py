@@ -1,10 +1,10 @@
 from fastapi import FastAPI
 
-from .modules.skills.routes import router as skills_router
-
+from .modules import auth, skills
 
 app = FastAPI()
-app.include_router(skills_router)
+app.include_router(auth.router)
+app.include_router(skills.router)
 
 
 @app.get("/")
