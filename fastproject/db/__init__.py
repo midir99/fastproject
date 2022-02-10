@@ -2,56 +2,53 @@
 import functools
 from typing import Callable, TypeVar, Optional
 from collections.abc import Awaitable
+from configparser import ConfigParser
+
 # TODO: Remove them when switching to Python 3.10
 from typing_extensions import ParamSpec, Concatenate
-
 from asyncpg import Pool, create_pool
 from asyncpg.pool import PoolAcquireContext
 
 from ..config import settings
 
 
-P = ParamSpec('P')
-T = TypeVar('T')  # pylint: disable=invalid-name
+P = ParamSpec("P")
+T = TypeVar("T")  # pylint: disable=invalid-name
+
+_CONN_POOL: Optional[Pool] = None
 
 
-class ConnectionPool:
-    """Connection pool container."""
-    _conn_pool: Optional[Pool] = None
+async def init_db(app_settings: ConfigParser = settings) -> None:
+    """Initializates the connection pool with the given settings."""
+    global _CONN_POOL  # pylint: disable=global-statement
+    _CONN_POOL = await create_pool(
+        host=app_settings["DATABASE"]["host"],
+        port=app_settings["DATABASE"]["port"],
+        database=app_settings["DATABASE"]["dbname"],
+        user=app_settings["DATABASE"]["user"],
+        password=app_settings["DATABASE"]["password"],
+        min_size=1,
+        max_size=5,
+    )
 
-    def __init__(self):
-        raise RuntimeError('Call ConnectionPool.get() instead')
 
-    @classmethod
-    async def get(cls) -> Pool:
-        """Returns the connection pool.
-
-        Creates the connection pool (in case it had not been created) and
-        returns it.
-
-        Returns:
-            A connection pool instance.
-        """
-        if cls._conn_pool is None:
-            cls._conn_pool = await create_pool(
-                host=settings["DATABASE"]["host"],
-                port=settings["DATABASE"]["port"],
-                database=settings["DATABASE"]["dbname"],
-                user=settings["DATABASE"]["user"],
-                password=settings["DATABASE"]["password"],
-                min_size=1,
-                max_size=5,
-            )
-        return cls._conn_pool
+async def get_connection_pool() -> Pool:
+    """Returns the connection pool."""
+    if _CONN_POOL is None:
+        await init_db()
+    return _CONN_POOL
 
 
 def with_connection(
     func: Callable[Concatenate[PoolAcquireContext, P], Awaitable[T]]
 ) -> Callable[P, Awaitable[T]]:
-    """Inject a database connection to an async function."""
+    """
+    Injects a database connection into an async function as the first
+    parameter.
+    """
     @functools.wraps(func)
     async def wrapper(*args: P.args, **kwargs: P.kwargs) -> Awaitable[T]:
-        conn_pool = await ConnectionPool.get()
+        conn_pool = await get_connection_pool()
         async with conn_pool.acquire() as conn:
             return_value = await func(conn, *args, **kwargs)
         return return_value
