@@ -18,7 +18,7 @@ T = TypeVar("T")  # pylint: disable=invalid-name
 _CONN_POOL: Optional[Pool] = None
 
 
-async def init_db(app_settings: ConfigParser = settings) -> None:
+async def init_connection_pool(app_settings: ConfigParser = settings) -> None:
     """Initializates the connection pool with the given settings."""
     global _CONN_POOL  # pylint: disable=global-statement
     _CONN_POOL = await create_pool(
@@ -35,7 +35,7 @@ async def init_db(app_settings: ConfigParser = settings) -> None:
 async def get_connection_pool() -> Pool:
     """Returns the connection pool."""
     if _CONN_POOL is None:
-        await init_db()
+        await init_connection_pool()
     return _CONN_POOL
 
 
