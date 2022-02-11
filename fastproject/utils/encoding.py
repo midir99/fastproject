@@ -17,7 +17,7 @@ def is_protected_type(obj):
     return isinstance(obj, _PROTECTED_TYPES)
 
 
-def force_bytes(s, encoding='utf-8', strings_only=False, errors='strict'):
+def force_bytes(s, encoding="utf-8", strings_only=False, errors="strict"):
     """
     Similar to smart_bytes, except that lazy instances are resolved to
     strings, rather than kept as lazy objects.
@@ -26,10 +26,10 @@ def force_bytes(s, encoding='utf-8', strings_only=False, errors='strict'):
     """
     # Handle the common case first for performance reasons.
     if isinstance(s, bytes):
-        if encoding == 'utf-8':
+        if encoding == "utf-8":
             return s
         else:
-            return s.decode('utf-8', errors).encode(encoding, errors)
+            return s.decode("utf-8", errors).encode(encoding, errors)
     if strings_only and is_protected_type(s):
         return s
     if isinstance(s, memoryview):

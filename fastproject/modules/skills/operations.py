@@ -6,8 +6,7 @@ from ...db import with_connection  # pylint: disable=relative-beyond-top-level
 from .dtos import SkillDto
 
 
-_queries = aiosql.from_path(
-    Path(__file__).resolve().parent / 'queries.sql', 'asyncpg')
+_queries = aiosql.from_path(Path(__file__).resolve().parent / "sql", "asyncpg")
 
 
 @with_connection
@@ -41,4 +40,4 @@ async def get_skill(conn, skill_id) -> SkillDto:
     """
     # pylint: disable-next=no-member
     skill_data = await _queries.get_skill(conn, skill_id=skill_id)
-    return SkillDto(skill_id=skill_data['skill_id'], name=skill_data['name'])
+    return SkillDto(skill_id=skill_data["skill_id"], name=skill_data["name"])

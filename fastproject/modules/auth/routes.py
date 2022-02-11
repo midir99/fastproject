@@ -1,16 +1,16 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 
 
 from .dtos import CreateUserDto
 
 
 router = APIRouter(
-    prefix='/users',
-    tags=['users']
+    prefix="/users",
+    tags=["users"]
 )
 
 
-@router.post('')
+@router.post("")
 async def create_user(create_user_dto: CreateUserDto) -> str:
     """Endpoint for User objects creation."""
-    return 'User successfully created.'
+    return "User successfully created."

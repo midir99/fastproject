@@ -6,8 +6,8 @@ from . import operations
 
 
 router = APIRouter(
-    prefix='/skills',
-    tags=['skills']
+    prefix="/skills",
+    tags=["skills"]
 )
 
 
