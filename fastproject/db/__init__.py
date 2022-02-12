@@ -2,7 +2,6 @@
 import functools
 from typing import Callable, TypeVar, Optional
 from collections.abc import Awaitable
-from configparser import ConfigParser
 
 # TODO: Remove them when switching to Python 3.10
 from typing_extensions import ParamSpec, Concatenate
@@ -18,24 +17,52 @@ T = TypeVar("T")  # pylint: disable=invalid-name
 _CONN_POOL: Optional[Pool] = None
 
 
-async def init_connection_pool(app_settings: ConfigParser = settings) -> None:
-    """Initializates the connection pool with the given settings."""
+# pylint: disable-next=too-many-arguments
+async def init_connection_pool(
+    host: Optional[str] = None,
+    port: Optional[int] = None,
+    dbname: Optional[str] = None,
+    user: Optional[str] = None,
+    password: Optional[str] = None,
+    min_connections=10,
+    max_connections=10,
+    use_settings=False
+) -> None:
+    """Initializates the database connection pool.
+
+    If use_settings is True, the connection parameters are taken from the
+    configuration file ".env".
+    """
     global _CONN_POOL  # pylint: disable=global-statement
+    if use_settings:
+        host = settings["DATABASE"]["host"]
+        port = settings["DATABASE"]["port"]
+        dbname = settings["DATABASE"]["dbname"]
+        user = settings["DATABASE"]["user"]
+        password = settings["DATABASE"]["password"]
+        min_connections = int(settings["DATABASE"]["min_connections"])
+        max_connections = int(settings["DATABASE"]["max_connections"])
+    else:
+        params = (host, port, dbname, user, password, min_connections,
+                  max_connections)
+        if None in params:
+            raise ValueError("If use_settings is False, you must specify "
+                             "host, port, dbname and password.")
     _CONN_POOL = await create_pool(
-        host=app_settings["DATABASE"]["host"],
-        port=app_settings["DATABASE"]["port"],
-        database=app_settings["DATABASE"]["dbname"],
-        user=app_settings["DATABASE"]["user"],
-        password=app_settings["DATABASE"]["password"],
-        min_size=1,
-        max_size=5,
+        host=host,
+        port=port,
+        database=dbname,
+        user=user,
+        password=password,
+        min_size=min_connections,
+        max_size=max_connections,
     )
 
 
 async def get_connection_pool() -> Pool:
-    """Returns the connection pool."""
+    """Returns the database connection pool."""
     if _CONN_POOL is None:
-        await init_connection_pool()
+        await init_connection_pool(use_settings=True)
     return _CONN_POOL
 
 
