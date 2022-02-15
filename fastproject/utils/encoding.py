@@ -1,6 +1,7 @@
-from decimal import Decimal
 import datetime
-
+import unicodedata
+from decimal import Decimal
+from typing import Any
 
 _PROTECTED_TYPES = (
     type(None), int, float, Decimal, datetime.datetime, datetime.date,
@@ -8,7 +9,7 @@ _PROTECTED_TYPES = (
 )
 
 
-def is_protected_type(obj):
+def is_protected_type(obj: Any) -> bool:
     """Determine if the object instance is of a protected type.
 
     Objects of protected types are preserved as-is when passed to
@@ -17,11 +18,13 @@ def is_protected_type(obj):
     return isinstance(obj, _PROTECTED_TYPES)
 
 
-def force_bytes(s, encoding="utf-8", strings_only=False, errors="strict"):
+def force_bytes(
+    s: Any, encoding="utf-8", strings_only=False, errors="strict"
+) -> bytes:
     """
-    Similar to smart_bytes, except that lazy instances are resolved to
-    strings, rather than kept as lazy objects.
+    Returns a bytestring version of 's', encoded as specified in 'encoding'.
 
+    Lazy instances are resolved to strings, rather than kept as lazy objects.
     If strings_only is True, don't convert (some) non-string-like objects.
     """
     # Handle the common case first for performance reasons.
@@ -35,3 +38,8 @@ def force_bytes(s, encoding="utf-8", strings_only=False, errors="strict"):
     if isinstance(s, memoryview):
         return bytes(s)
     return str(s).encode(encoding, errors)
+
+
+def normalize_ustring(ustring: str) -> str:
+    """Returns the normal form NFKC of the unicode string given."""
+    return unicodedata.normalize("NFKC", ustring)

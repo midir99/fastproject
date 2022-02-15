@@ -4,11 +4,56 @@ SELECT *
   FROM uuser;
 
 
+-- name: insert-user<!
+-- Inserts a single user
+INSERT INTO uuser (
+    username,
+    email,
+    first_name,
+    last_name,
+    password,
+    is_superuser,
+    is_staff,
+    is_active,
+    date_joined,
+    last_login
+) VALUES (
+    :username,
+    :email,
+    :first_name,
+    :last_name,
+    :password,
+    :is_superuser,
+    :is_staff,
+    :is_active,
+    :date_joined,
+    :last_login
+) RETURNING
+    uuser_id,
+    username,
+    email,
+    first_name,
+    last_name,
+    password,
+    is_superuser,
+    is_staff,
+    is_active,
+    date_joined,
+    last_login;
+
+
 -- name: get-user-by-username^
 -- Get 1 user with the given username field
 SELECT *
   FROM uuser
  WHERE username = :username;
+
+
+-- name: get-user-by-id^
+-- Get 1 user with the given username field
+SELECT *
+  FROM uuser
+ WHERE uuser_id = :uuser_id;
 
 
 -- name: get-all-users-with-skill

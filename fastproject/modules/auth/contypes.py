@@ -14,3 +14,17 @@ Password = constr(
     min_length=9,
     max_length=128,
 )
+
+
+FirstName = constr(
+    strip_whitespace=True,
+    max_length=150,
+    regex="[a-zA-Z]"
+)
+
+
+LastName = constr(
+    strip_whitespace=True,
+    max_length=150,
+    regex="[a-zA-Z]",
+)
