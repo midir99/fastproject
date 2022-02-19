@@ -3,7 +3,6 @@ from typing import AnyStr
 
 from .encoding import force_bytes
 
-
 RANDOM_STRING_CHARS = \
     "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 

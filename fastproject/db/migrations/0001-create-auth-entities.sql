@@ -19,7 +19,7 @@
 -- Entity: permission
 CREATE TABLE permission (
     PRIMARY KEY (permission_id),
-    permission_id SERIAL       NOT NULL,
+    permission_id UUID DEFAULT gen_random_uuid(),
     name          VARCHAR(255) NOT NULL,
     codename      VARCHAR(100) NOT NULL
 );
@@ -28,7 +28,7 @@ CREATE TABLE permission (
 -- Entity: ggroup
 CREATE TABLE ggroup (
     PRIMARY KEY (ggroup_id),
-    ggroup_id SERIAL       NOT NULL,
+    ggroup_id UUID DEFAULT gen_random_uuid(),
     name      VARCHAR(150) NOT NULL
 );
 CREATE INDEX idx_ggroup_name ON ggroup USING btree (name varchar_pattern_ops);
@@ -37,10 +37,11 @@ CREATE INDEX idx_ggroup_name ON ggroup USING btree (name varchar_pattern_ops);
 -- Entity: uuser
 CREATE TABLE uuser (
     PRIMARY KEY (uuser_id),
-    uuser_id     SERIAL                   NOT NULL,
+    uuser_id     UUID DEFAULT gen_random_uuid(),
     username     VARCHAR(150)             NOT NULL,
                  UNIQUE(username),
     email        VARCHAR(254)             NOT NULL,
+                 UNIQUE(email),
     first_name   VARCHAR(150)             NOT NULL,
     last_name    VARCHAR(150)             NOT NULL,
     password     VARCHAR(128)             NOT NULL,
@@ -56,10 +57,10 @@ CREATE INDEX idx_uuser_username ON uuser USING btree (username varchar_pattern_o
 -- Junction: ggroup & permission
 CREATE TABLE ggroup_permission (
     PRIMARY KEY (ggroup_permission_id),
-    ggroup_permission_id BIGSERIAL NOT NULL,
-    ggroup_id            INTEGER   NOT NULL,
+    ggroup_permission_id UUID DEFAULT gen_random_uuid(),
+    ggroup_id            UUID NOT NULL,
                          FOREIGN KEY (ggroup_id) REFERENCES ggroup (ggroup_id) DEFERRABLE INITIALLY DEFERRED,
-    permission_id        INTEGER   NOT NULL,
+    permission_id        UUID NOT NULL,
                          FOREIGN KEY (permission_id) REFERENCES permission (permission_id) DEFERRABLE INITIALLY DEFERRED,
     UNIQUE(ggroup_id, permission_id)
 );
@@ -70,10 +71,10 @@ CREATE INDEX idx_ggroup_permission_permission_id ON ggroup_permission USING btre
 -- Junction: uuser & ggroup
 CREATE TABLE uuser_ggroup (
     PRIMARY KEY (uuser_ggroup_id),
-    uuser_ggroup_id BIGSERIAL NOT NULL,
-    uuser_id        INTEGER   NOT NULL,
+    uuser_ggroup_id UUID DEFAULT gen_random_uuid(),
+    uuser_id        UUID NOT NULL,
                     FOREIGN KEY (uuser_id) REFERENCES uuser (uuser_id) DEFERRABLE INITIALLY DEFERRED,
-    ggroup_id       INTEGER   NOT NULL,
+    ggroup_id       UUID NOT NULL,
                     FOREIGN KEY (ggroup_id) REFERENCES ggroup (ggroup_id) DEFERRABLE INITIALLY DEFERRED,
     UNIQUE(uuser_id, ggroup_id)
 );
@@ -84,10 +85,10 @@ CREATE INDEX idx_uuser_ggroup_ggroup_id ON uuser_ggroup USING btree (ggroup_id);
 -- Junction: uuser & permission
 CREATE TABLE uuser_permission (
     PRIMARY KEY (uuser_permission_id),
-    uuser_permission_id BIGSERIAL NOT NULL,
-    uuser_id            INTEGER   NOT NULL,
+    uuser_permission_id UUID DEFAULT gen_random_uuid(),
+    uuser_id            UUID NOT NULL,
                         FOREIGN KEY (uuser_id) REFERENCES uuser (uuser_id) DEFERRABLE INITIALLY DEFERRED,
-    permission_id       INTEGER   NOT NULL,
+    permission_id       UUID NOT NULL,
                         FOREIGN KEY (permission_id) REFERENCES permission (permission_id) DEFERRABLE INITIALLY DEFERRED,
     UNIQUE(uuser_id, permission_id)
 );

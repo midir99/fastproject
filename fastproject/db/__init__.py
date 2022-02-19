@@ -1,23 +1,21 @@
 """Utils to get database connections based on the application settings."""
 import functools
-from typing import Callable, TypeVar, Optional
 from collections.abc import Awaitable
+from typing import Callable, Optional, TypeVar
 
-# TODO: Remove them when switching to Python 3.10
-from typing_extensions import ParamSpec, Concatenate
 from asyncpg import Pool, create_pool
 from asyncpg.pool import PoolAcquireContext
+# TODO: Remove them when switching to Python 3.10
+from typing_extensions import Concatenate, ParamSpec
 
 from ..config import settings
 
-
 P = ParamSpec("P")
-T = TypeVar("T")  # pylint: disable=invalid-name
+T = TypeVar("T")
 
 _CONN_POOL: Optional[Pool] = None
 
 
-# pylint: disable-next=too-many-arguments
 async def init_connection_pool(
     host: Optional[str] = None,
     port: Optional[int] = None,

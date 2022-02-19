@@ -2,9 +2,8 @@ from pathlib import Path
 
 import aiosql
 
-from ...db import with_connection  # pylint: disable=relative-beyond-top-level
-from .dtos import SkillDto
-
+from ...db import with_connection
+from .dtos import PublicSkillDto
 
 _queries = aiosql.from_path(Path(__file__).resolve().parent / "sql", "asyncpg")
 
@@ -25,7 +24,7 @@ async def create_skill(conn, name) -> int:
 
 
 @with_connection
-async def get_skill(conn, skill_id) -> SkillDto:
+async def get_skill(conn, skill_id: str) -> PublicSkillDto:
     """Gets a skill by its skill_id.
 
     Args:

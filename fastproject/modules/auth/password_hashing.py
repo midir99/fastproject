@@ -8,7 +8,6 @@ import argon2
 
 from ...utils.crypto import RANDOM_STRING_CHARS, get_random_string
 
-
 SALT_ENTROPY = 128
 
 # This will never be a valid encoded hash

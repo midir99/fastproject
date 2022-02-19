@@ -1,10 +1,9 @@
-from difflib import SequenceMatcher
 import gzip
 import re
+from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Optional
 
-from .contypes import Password
 from .errors import InvalidPasswordError
 
 _PASSWORD_LIST_PATH = Path(__file__).resolve().parent / "common-passwords.txt.gz"
@@ -22,12 +21,13 @@ def _load_password_list(password_list_path=_PASSWORD_LIST_PATH) -> None:
             _PASSWORD_LIST = {p.strip() for p in file}
 
 
-def validate_password_length(password: str) -> str:
+def validate_password_length(
+        password: str, min_length: int, max_length: int) -> str:
     """Validates that the password has the correct length."""
-    if not Password.min_length <= len(password) <= Password.max_length:
+    if not min_length <= len(password) <= max_length:
         raise InvalidPasswordError(
-            f"Password can not have less than {Password.min_length} or more "
-            f"than {Password.max_length} characters.")
+            f"Password can not have less than {min_length} or more "
+            f"than {max_length} characters.")
     return password
 
 
@@ -111,12 +111,13 @@ def validate_password_not_common(password: str) -> None:
 
 
 def validate_password(
-        password: str, user_attrs: Optional[list[str]] = None) -> None:
+        password: str, min_length: int, max_length: int,
+        user_attrs: Optional[list[str]] = None) -> None:
     """
     Validates the password with all the password validation related
     functions in this module.
     """
-    password = validate_password_length(password)
+    password = validate_password_length(password, min_length, max_length)
     password = validate_password_not_numeric(password)
     password = validate_password_not_similar_to_user_attributes(
         password, user_attrs)

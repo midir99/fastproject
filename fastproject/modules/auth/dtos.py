@@ -1,4 +1,5 @@
 import datetime
+import uuid
 from typing import Any, Optional
 
 from pydantic import BaseModel, EmailStr, Field, validator
@@ -6,9 +7,9 @@ from pydantic import BaseModel, EmailStr, Field, validator
 from . import contypes, password_validators
 
 
-class PublicUserDto(BaseModel):
+class PublicUserDTO(BaseModel):
     """DTO for user objects safe sharing."""
-    user_id: int
+    user_id: uuid.UUID
     username: str
     email: str
     first_name: str
@@ -20,14 +21,13 @@ class PublicUserDto(BaseModel):
     last_login: Optional[datetime.datetime]
 
 
-class CreateUserDto(BaseModel):
+class SignUpUserDTO(BaseModel):
     """DTO for user objects creation."""
     username: contypes.Username = Field(None, description="Username")
     email: EmailStr = Field(None, description="Email")
     first_name: contypes.FirstName = Field(None, description="First name")
     last_name: contypes.LastName = Field(None, description="Last name")
     password: contypes.Password = Field(None, description="Password")
-    is_active: bool = Field(None, description="Is active?")
 
     @validator('password')
     def validate_password(cls, value: str, values: dict[str, Any]) -> str:
@@ -38,4 +38,6 @@ class CreateUserDto(BaseModel):
             "first_name": values["first_name"],
             "last_name": values["last_name"],
         }
-        return password_validators.validate_password(value, user_attributes)
+        return password_validators.validate_password(
+            value, contypes.Password.min_length, contypes.Password.max_length,
+            user_attributes)

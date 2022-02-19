@@ -1,8 +1,10 @@
+import uuid
+
 from pydantic import BaseModel
 
 
-class SkillDto(BaseModel):
-    skill_id: int
+class PublicSkillDto(BaseModel):
+    skill_id: uuid.UUID
     name: str
 
 
