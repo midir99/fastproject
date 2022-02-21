@@ -4,7 +4,7 @@ from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Optional
 
-from .errors import InvalidPasswordError
+from .exceptions import InvalidPasswordError
 
 _PASSWORD_LIST_PATH = Path(__file__).resolve().parent / "common-passwords.txt.gz"
 _PASSWORD_LIST = set()

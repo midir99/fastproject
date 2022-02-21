@@ -1,6 +1,7 @@
 import datetime
 import zoneinfo
 from typing import Optional
+from uuid import UUID
 
 from ...config import settings
 from ...utils.encoding import normalize_ustring
@@ -73,5 +74,5 @@ async def create_super_user(
         is_superuser=True, is_staff=True, is_active=True)
 
 
-async def get_user_by_id(user_id: str) -> Optional[PublicUserDTO]:
+async def get_user_by_id(user_id: UUID) -> Optional[PublicUserDTO]:
     return await repository.get_user_by_id(user_id)

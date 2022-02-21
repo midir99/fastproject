@@ -50,7 +50,7 @@ SELECT *
 
 
 -- name: get-user-by-id^
--- Get 1 user with the given username field
+-- Get a single user with the given user_id
 SELECT *
   FROM uuser
  WHERE uuser_id = :uuser_id;

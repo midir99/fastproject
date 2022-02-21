@@ -1,6 +1,7 @@
 import datetime
 from pathlib import Path
 from typing import Optional
+from uuid import UUID
 
 import aiosql
 import asyncpg
@@ -8,7 +9,7 @@ from asyncpg.pool import PoolAcquireContext
 
 from ...db import with_connection
 from .dtos import PublicUserDTO
-from .errors import EmailAlreadyExistsError, UsernameAlreadyExistsError
+from .exceptions import UserEmailAlreadyExistsError, UserUsernameAlreadyExistsError
 
 _queries = aiosql.from_path(Path(__file__).resolve().parent / "sql", "asyncpg")
 
@@ -48,8 +49,8 @@ async def insert_user(
       A PublicUserDTO representing the inserted user.
 
     Raises:
-      UsernameAlreadyExistsError: If the username already exists.
-      EmailAlreadyExistsError: If the email already exists.
+      UserUsernameAlreadyExistsError: If the username already exists.
+      UserEmailAlreadyExistsError: If the email already exists.
     """
     try:
         inserted = await _queries.insert_user(
@@ -61,15 +62,15 @@ async def insert_user(
     except asyncpg.exceptions.UniqueViolationError as e:
         msg = str(e)
         if "username" in msg:
-            raise UsernameAlreadyExistsError from e
+            raise UserUsernameAlreadyExistsError from e
         if "email" in msg:
-            raise EmailAlreadyExistsError from e
+            raise UserEmailAlreadyExistsError from e
         raise e from e
 
 
 @with_connection
 async def get_user_by_id(
-        conn: PoolAcquireContext, user_id: str) -> Optional[PublicUserDTO]:
+        conn: PoolAcquireContext, user_id: UUID) -> Optional[PublicUserDTO]:
     """Returns a user from the database with the given user_id.
 
     Args:

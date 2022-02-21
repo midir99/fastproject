@@ -3,7 +3,7 @@ from pathlib import Path
 import aiosql
 
 from ...db import with_connection
-from .dtos import PublicSkillDto
+from .dtos import PublicSkillDTO
 
 _queries = aiosql.from_path(Path(__file__).resolve().parent / "sql", "asyncpg")
 
@@ -24,7 +24,7 @@ async def create_skill(conn, name) -> int:
 
 
 @with_connection
-async def get_skill(conn, skill_id: str) -> PublicSkillDto:
+async def get_skill(conn, skill_id: str) -> PublicSkillDTO:
     """Gets a skill by its skill_id.
 
     Args:
