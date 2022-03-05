@@ -1,6 +1,6 @@
 import pytest
 
-from fastproject.modules.auth.password_hashing import (
+from fastproject.modules.users.password_hashing import (
     check_password,
     generate_salt,
     is_password_usable,

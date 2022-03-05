@@ -4,8 +4,8 @@ from fastapi import APIRouter, HTTPException, status
 
 from ...utils.http_responses import NotFoundResponse, ConflictResponse
 from . import service
-from .dtos import PublicUserDTO, SignUpUserDTO
-from .exceptions import UserUsernameAlreadyExistsError, UserEmailAlreadyExistsError
+from .models import PublicUser, SignUpUser
+from .exceptions import UsernameAlreadyExistsError, EmailAlreadyExistsError
 
 router = APIRouter(
     prefix="/users",
@@ -15,13 +15,13 @@ router = APIRouter(
 
 @router.post(
     "",
-    response_model=PublicUserDTO,
+    response_model=PublicUser,
     status_code=status.HTTP_201_CREATED,
     responses={
         status.HTTP_409_CONFLICT: ConflictResponse
     }
 )
-async def sign_up_user(signup_user_dto: SignUpUserDTO):
+async def sign_up_user(signup_user_dto: SignUpUser):
     try:
         user = await service.create_user(
             username=signup_user_dto.username,
@@ -31,17 +31,17 @@ async def sign_up_user(signup_user_dto: SignUpUserDTO):
             password=signup_user_dto.password,
         )
         return user
-    except UserUsernameAlreadyExistsError as e:
+    except UsernameAlreadyExistsError as e:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                             detail="Username already taken.") from e
-    except UserEmailAlreadyExistsError as e:
+    except EmailAlreadyExistsError as e:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                             detail="Email already taken.") from e
 
 
 @router.get(
     "/{user_id}",
-    response_model=PublicUserDTO,
+    response_model=PublicUser,
     status_code=status.HTTP_200_OK,
     responses={
         status.HTTP_404_NOT_FOUND: NotFoundResponse

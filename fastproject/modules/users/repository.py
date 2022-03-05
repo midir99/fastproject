@@ -8,8 +8,8 @@ import asyncpg
 from asyncpg.pool import PoolAcquireContext
 
 from ...db import with_connection
-from .dtos import PublicUserDTO
-from .exceptions import UserEmailAlreadyExistsError, UserUsernameAlreadyExistsError
+from .models import PublicUser
+from .exceptions import EmailAlreadyExistsError, UsernameAlreadyExistsError
 
 _queries = aiosql.from_path(Path(__file__).resolve().parent / "sql", "asyncpg")
 
@@ -27,7 +27,7 @@ async def insert_user(
     is_staff=False,
     is_active=True,
     last_login: Optional[datetime.datetime] = None
-) -> Optional[PublicUserDTO]:
+) -> Optional[PublicUser]:
     """Inserts a user into the database.
 
     This function inserts the given values "as-is", so you must make the
@@ -58,19 +58,19 @@ async def insert_user(
             last_name=last_name, password=password, is_superuser=is_superuser,
             is_staff=is_staff, is_active=is_active, date_joined=date_joined,
             last_login=last_login)
-        return PublicUserDTO(user_id=inserted["uuser_id"], **inserted)
+        return PublicUser(user_id=inserted["uuser_id"], **inserted)
     except asyncpg.exceptions.UniqueViolationError as e:
         msg = str(e)
         if "username" in msg:
-            raise UserUsernameAlreadyExistsError from e
+            raise UsernameAlreadyExistsError from e
         if "email" in msg:
-            raise UserEmailAlreadyExistsError from e
+            raise EmailAlreadyExistsError from e
         raise e from e
 
 
 @with_connection
 async def get_user_by_id(
-        conn: PoolAcquireContext, user_id: UUID) -> Optional[PublicUserDTO]:
+        conn: PoolAcquireContext, user_id: UUID) -> Optional[PublicUser]:
     """Returns a user from the database with the given user_id.
 
     Args:
@@ -83,5 +83,5 @@ async def get_user_by_id(
     """
     searched = await _queries.get_user_by_id(conn, uuser_id=user_id)
     if searched:
-        return PublicUserDTO(user_id=searched["uuser_id"], **searched)
+        return PublicUser(user_id=searched["uuser_id"], **searched)
     return None

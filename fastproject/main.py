@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 
-from .modules import auth, skills
+from .modules import users, skills
 
 app = FastAPI()
-app.include_router(auth.router)
+app.include_router(users.router)
 app.include_router(skills.router)
 
 

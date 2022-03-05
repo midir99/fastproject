@@ -5,14 +5,14 @@ class InvalidPasswordError(ValueError):
     """Raised on password validation errors."""
 
 
-class UserUsernameAlreadyExistsError(UniqueViolationError):
+class UsernameAlreadyExistsError(UniqueViolationError):
     """
     Raised when inserting user records in the database and the username of the
     user that will be inserted already exists in the database.
     """
 
 
-class UserEmailAlreadyExistsError(UniqueViolationError):
+class EmailAlreadyExistsError(UniqueViolationError):
     """
     Raised when inserting user records in the database and the email of the
     user that will be inserted already exists in the database.
