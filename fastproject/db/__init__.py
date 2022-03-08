@@ -34,7 +34,7 @@ async def init_connection_pool(
     global _CONN_POOL  # pylint: disable=global-statement
     if use_settings:
         host = settings["DATABASE"]["host"]
-        port = settings["DATABASE"]["port"]
+        port = int(settings["DATABASE"]["port"])
         dbname = settings["DATABASE"]["dbname"]
         user = settings["DATABASE"]["user"]
         password = settings["DATABASE"]["password"]

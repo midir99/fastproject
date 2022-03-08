@@ -46,7 +46,7 @@ async def insert_user(
       last_login: The value for the "last_login" field of the user table.
 
     Returns:
-      A PublicUserDTO representing the inserted user.
+      A PublicUser representing the inserted user.
 
     Raises:
       UserUsernameAlreadyExistsError: If the username already exists.
@@ -78,7 +78,7 @@ async def get_user_by_id(
       user_id: The user_id of the searched user.
 
     Returns:
-      A PublicUserDTO representing the searched user, None if the user was not
+      A PublicUser representing the searched user, None if the user was not
       found.
     """
     searched = await _queries.get_user_by_id(conn, uuser_id=user_id)
