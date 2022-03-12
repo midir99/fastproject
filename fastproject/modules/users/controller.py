@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException, status
 
 from ...utils.http_responses import NotFoundResponse, ConflictResponse
 from . import service
-from .models import PublicUser, SignUpUser, PatchUser
+from .models import PublicUserData, SignUpUserData, PatchableUserData
 from .exceptions import UsernameAlreadyExistsError, EmailAlreadyExistsError
 
 controller = APIRouter(
@@ -15,13 +15,13 @@ controller = APIRouter(
 
 @controller.post(
     "",
-    response_model=PublicUser,
+    response_model=PublicUserData,
     status_code=status.HTTP_201_CREATED,
     responses={
         status.HTTP_409_CONFLICT: ConflictResponse
     }
 )
-async def sign_up_user(signup_user: SignUpUser):
+async def sign_up_user(signup_user: SignUpUserData):
     try:
         user = await service.create_user(
             username=signup_user.username,
@@ -41,7 +41,7 @@ async def sign_up_user(signup_user: SignUpUser):
 
 @controller.get(
     "/{user_id}",
-    response_model=PublicUser,
+    response_model=PublicUserData,
     status_code=status.HTTP_200_OK,
     responses={
         status.HTTP_404_NOT_FOUND: NotFoundResponse
@@ -56,8 +56,8 @@ async def get_user(user_id: UUID):
 
 @controller.patch(
     "/{user_id}",
-    response_model=PublicUser
+    response_model=PublicUserData
 )
-async def partial_update_user(user_id: UUID, patch_user: PatchUser):
+async def partial_update_user(user_id: UUID, patch_user: PatchableUserData):
     update_date = patch_user.dict(exclude_defaults=True)
     # TODO

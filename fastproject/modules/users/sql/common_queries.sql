@@ -58,7 +58,7 @@ SELECT *
           is_staff = COALESCE(:is_staff, is_staff),
           is_active = COALESCE(:is_active, is_active),
           date_joined = COALESCE(:date_joined, date_joined),
-          last_login = :last_login
+          last_login = CASE WHEN :update_last_login THEN :last_login ELSE last_login END
     WHERE uuser_id = :uuser_id
 RETURNING uuser.*;
 
