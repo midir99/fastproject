@@ -1,3 +1,4 @@
+from collections.abc import Awaitable
 from pathlib import Path
 from typing import Any, Optional
 from uuid import UUID
@@ -15,7 +16,7 @@ _queries = aiosql.from_path(Path(__file__).resolve().parent / "sql", "asyncpg")
 
 @with_connection
 async def insert_user(
-        conn: PoolAcquireContext, **kwargs: Any) -> Optional[UserEntity]:
+        conn: PoolAcquireContext, **kwargs: Any) -> Awaitable[UserEntity]:
     """Inserts a user into the database.
 
     This function inserts the given values "as-is", so you must make the
@@ -30,8 +31,8 @@ async def insert_user(
       A UserEntity representing the inserted user.
 
     Raises:
-      UserUsernameAlreadyExistsError: If the username already exists.
-      UserEmailAlreadyExistsError: If the email already exists.
+      UsernameAlreadyExistsError: If the username already exists.
+      EmailAlreadyExistsError: If the email already exists.
     """
     try:
         inserted = await _queries.insert_user(conn, **kwargs)
@@ -47,8 +48,9 @@ async def insert_user(
 
 @with_connection
 async def get_user_by_id(
-        conn: PoolAcquireContext, user_id: UUID) -> Optional[UserEntity]:
-    """Returns a user from the database with the given user_id.
+    conn: PoolAcquireContext, user_id: UUID
+) -> Awaitable[Optional[UserEntity]]:
+    """Returns the user with the specified user_id from the database.
 
     Args:
       conn: A database connection.
@@ -67,10 +69,10 @@ async def get_user_by_id(
 @with_connection
 async def update_user_by_id(
     conn: PoolAcquireContext, user_id: UUID, **kwargs: Any
-) -> Optional[UserEntity]:
+) -> Awaitable[Optional[UserEntity]]:
     """
-    Updates the data of an existing user in the database with the given user_id
-    and returns it. Not provided fields won't be updated.
+    Updates the data of a user with the specified user_id in the database. Not
+    provided fields won't be updated.
 
     Args:
       conn: A database connection.
@@ -83,8 +85,8 @@ async def update_user_by_id(
       updated.
 
     Raises:
-      UserUsernameAlreadyExistsError: If the username already exists.
-      UserEmailAlreadyExistsError: If the email already exists.
+      UsernameAlreadyExistsError: If the username already exists.
+      EmailAlreadyExistsError: If the email already exists.
     """
     fields = ("username", "email", "first_name", "last_name", "password",
               "is_superuser", "is_staff", "is_active", "date_joined",)
@@ -107,8 +109,9 @@ async def update_user_by_id(
 
 @with_connection
 async def delete_user_by_id(
-        conn: PoolAcquireContext, user_id: UUID) -> Optional[UserEntity]:
-    """Deletes a user from the database with the given user_id.
+    conn: PoolAcquireContext, user_id: UUID
+) -> Awaitable[Optional[UserEntity]]:
+    """Deletes the user with the specified user_id from the database.
 
     Args:
       conn: A database connection.

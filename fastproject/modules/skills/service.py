@@ -1,12 +1,12 @@
 from typing import Optional
 
-from ...utils.encoding import normalize_ustring
+from ...utils.encoding import normalize_str
 from . import repository
 from .dtos import PublicSkillDTO
 
 
 async def create_skill(name: str) -> PublicSkillDTO:
-    name = normalize_ustring(name)
+    name = normalize_str(name)
     return await repository.insert_skill(name)
 
 

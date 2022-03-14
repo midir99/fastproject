@@ -40,6 +40,6 @@ def force_bytes(
     return str(s).encode(encoding, errors)
 
 
-def normalize_ustring(ustring: str) -> str:
+def normalize_str(ustring: str) -> str:
     """Returns the normal form NFKC of the unicode string given."""
     return unicodedata.normalize("NFKC", ustring)
