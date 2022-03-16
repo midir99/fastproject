@@ -58,7 +58,7 @@ class PatchableUserData(BaseModel):
         None, description="Last login")
 
 
-class SignUpUserData(BaseModel):
+class UserRegistrationData(BaseModel):
     """
     Represents user data that can be used to register a user in the system and
     insert that user in the database.

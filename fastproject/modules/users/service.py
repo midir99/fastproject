@@ -1,7 +1,7 @@
 import datetime
 import zoneinfo
 from collections.abc import Awaitable
-from typing import Optional
+from typing import Any, Optional
 from uuid import UUID
 
 from ...config import settings
@@ -73,31 +73,22 @@ async def get_user_by_id(user_id: UUID) -> Awaitable[Optional[UserEntity]]:
 
 
 async def update_user_by_id(
-    user_id: UUID,
-    username: Optional[str] = None,
-    email: Optional[str] = None,
-    first_name: Optional[str] = None,
-    last_name: Optional[str] = None,
-    password: Optional[str] = None,
-    is_superuser: Optional[bool] = None,
-    is_staff: Optional[bool] = None,
-    is_active: Optional[bool] = None,
-    date_joined: Optional[datetime.datetime] = None,
-    last_login: Optional[datetime.datetime] = None,
-) -> Awaitable[Optional[UserEntity]]:
+        user_id: UUID, **kwargs: Any) -> Awaitable[Optional[UserEntity]]:
     """Updates the data of the user with the specified user_id in the database.
 
     Args:
-      username: The username of the user.
-      email: The email of the user.
-      first_name: The first name of the user.
-      last_name: The last name of the user.
-      password: The password (not hashed) of the user.
-      is_superuser: A flag that indicates if this user is super user.
-      is_staff: A flag that indicated if this user can is staff.
-      is_active: A flag that indicates if this user is active.
-      date_joined: The datetime the user joined the system.
-      last_login: The datetime the user last logged in.
+      user_id: The user_id of the user that will be updated.
+      **username (str): The username of the user.
+      **email (str): The email of the user.
+      **first_name (str): The first name of the user.
+      **last_name (str): The last name of the user.
+      **password (str): The password (not hashed) of the user.
+      **is_superuser (bool): A flag that indicates if this user is super user.
+      **is_staff (bool): A flag that indicated if this user can is staff.
+      **is_active (bool): A flag that indicates if this user is active.
+      **date_joined (datetime.datetime): The datetime the user joined the
+        system.
+      **last_login (datetime.datetime): The datetime the user last logged in.
 
     Returns:
       A UserEntity representing the updated user, None if the user was not
@@ -107,16 +98,17 @@ async def update_user_by_id(
       UsernameAlreadyExistsError: If the username already exists.
       EmailAlreadyExistsError: If the email already exists.
     """
-    username = normalize_str(username)
-    email = normalize_str(email)
-    first_name = normalize_str(first_name)
-    last_name = normalize_str(last_name)
-    password_hash = make_password(password)
-    return await repository.update_user_by_id(
-        user_id, username=username, email=email, first_name=first_name,
-        last_name=last_name, password=password_hash, is_superuser=is_superuser,
-        is_staff=is_staff, is_active=is_active, date_joined=date_joined,
-        last_login=last_login)
+    if "username" in kwargs:
+        kwargs["username"] = normalize_str(kwargs["username"])
+    if "email" in kwargs:
+        kwargs["email"] = normalize_str(kwargs["email"])
+    if "first_name" in kwargs:
+        kwargs["first_name"] = normalize_str(kwargs["first_name"])
+    if "last_name" in kwargs:
+        kwargs["last_name"] = normalize_str(kwargs["last_name"])
+    if "password" in kwargs:
+        kwargs["password"] = make_password(kwargs["password"])
+    return await repository.update_user_by_id(user_id, **kwargs)
 
 
 async def delete_user_by_id(user_id: UUID) -> Awaitable[Optional[UserEntity]]:

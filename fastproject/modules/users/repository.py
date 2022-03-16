@@ -61,9 +61,9 @@ async def get_user_by_id(
       found.
     """
     searched = await _queries.get_user_by_id(conn, uuser_id=user_id)
-    if searched:
-        return UserEntity(user_id=searched["uuser_id"], **searched)
-    return None
+    if not searched:
+        return None
+    return UserEntity(user_id=searched["uuser_id"], **searched)
 
 
 @with_connection
@@ -91,7 +91,8 @@ async def update_user_by_id(
     fields = ("username", "email", "first_name", "last_name", "password",
               "is_superuser", "is_staff", "is_active", "date_joined",)
     null_fields = ("last_login",)
-    update_data = updater_fields(fields, null_fields)
+    update_data = updater_fields(fields, null_fields, **kwargs)
+    print(update_data)
     try:
         updated = await _queries.update_user_by_id(
             conn, uuser_id=user_id, **update_data)
@@ -122,6 +123,6 @@ async def delete_user_by_id(
       deleted.
     """
     deleted = await _queries.delete_user_by_id(conn, uuser_id=user_id)
-    if deleted:
-        return UserEntity(user_id=deleted["user_id"], **deleted)
-    return None
+    if not deleted:
+        return None
+    return UserEntity(user_id=deleted["user_id"], **deleted)

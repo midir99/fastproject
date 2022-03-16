@@ -74,6 +74,6 @@ def updater_fields(
         null_fields = ()
     return {
         **{field: kwargs.get(field) for field in fields + null_fields},
-        **{f"{updater_flag_preffix}{field}": True for field in null_fields
-            if field in kwargs}
+        **{f"{updater_flag_preffix}{field}": True if field in kwargs else False
+           for field in null_fields}
     }
