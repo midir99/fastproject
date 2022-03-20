@@ -1,6 +1,31 @@
 import datetime
+from decimal import Decimal
+from unicodedata import is_normalized
 
-from fastproject.utils.encoding import force_bytes
+import pytest
+
+from fastproject.utils.encoding import (force_bytes, is_protected_type,
+                                        normalize_str)
+
+
+@pytest.mark.parametrize(
+    "protected_type,is_protected_type_",
+    [
+        (None, True),
+        (5, True),
+        (3.14, True),
+        (Decimal(9.3), True),
+        (datetime.datetime.now(), True),
+        (datetime.date.today(), True),
+        (datetime.time.min, True),
+        (False, True),
+        ("Shanalotte", False),
+        (b"Twin Princess", False),
+        ([], False)
+    ]
+)
+def test_is_protected_type(protected_type, is_protected_type_):
+    assert is_protected_type(protected_type) is is_protected_type_
 
 
 def test_force_bytes_exception():
@@ -31,3 +56,9 @@ def test_force_bytes_memory_view():
     # Type check is needed because memoryview(bytes) == bytes.
     assert type(result) is bytes
     assert result == data
+
+
+def test_normalize_str():
+    string = "María de todos los Ángeles"
+    norm_str = normalize_str(string)
+    assert is_normalized("NFKC", norm_str)

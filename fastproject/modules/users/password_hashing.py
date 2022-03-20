@@ -34,12 +34,12 @@ def is_password_usable(encoded: Optional[str]) -> bool:
     return encoded is None or not encoded.startswith(UNUSABLE_PASSWORD_PREFIX)
 
 
-def check_password(password: Optional[str], encoded: str) -> bool:
+def check_password(password: str, encoded: str) -> bool:
     """
-    Return a boolean of whether the raw password matches the three
-    part encoded digest.
+    Return a boolean of whether the raw password matches the multipart encoded
+    digest.
     """
-    if password is None or not is_password_usable(encoded):
+    if not is_password_usable(encoded):
         return False
     try:
         return argon2.PasswordHasher().verify(encoded, password)

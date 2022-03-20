@@ -1,7 +1,7 @@
 import unicodedata
 
 
-def _unicode_ci_compare(s1, s2):
+def unicode_ci_compare(s1, s2):
     """
     Perform case-insensitive comparison of two identifiers, using the
     recommended algorithm from Unicode Technical Report 36, section

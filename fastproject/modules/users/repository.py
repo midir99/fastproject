@@ -92,7 +92,6 @@ async def update_user_by_id(
               "is_superuser", "is_staff", "is_active", "date_joined",)
     null_fields = ("last_login",)
     update_data = updater_fields(fields, null_fields, **kwargs)
-    print(update_data)
     try:
         updated = await _queries.update_user_by_id(
             conn, uuser_id=user_id, **update_data)

@@ -32,7 +32,7 @@ def updater_fields(
       indicate which NULLABLE fields will be updated). For example:
 
       fields = ("username", "email", "first_name")
-      null_fields = ("last_login", "last_name")
+      null_fields = ("last_name", "last_login")
       new_values = updater_fields(fields, null_fields, username="snowball99",
                                   email="snowball@example.com",
                                   last_login="1999-01-22")
