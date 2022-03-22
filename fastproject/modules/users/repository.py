@@ -37,7 +37,7 @@ async def insert_user(
     try:
         inserted = await _queries.insert_user(conn, **kwargs)
         return UserEntity(user_id=inserted["uuser_id"], **inserted)
-    except asyncpg.exceptions.UniqueViolationError as e:
+    except asyncpg.UniqueViolationError as e:
         msg = str(e)
         if "username" in msg:
             raise UsernameAlreadyExistsError from e
@@ -98,7 +98,7 @@ async def update_user_by_id(
         if not updated:
             return None
         return UserEntity(user_id=updated["uuser_id"], **updated)
-    except asyncpg.exceptions.UniqueViolationError as e:
+    except asyncpg.UniqueViolationError as e:
         msg = str(e)
         if "username" in msg:
             raise UsernameAlreadyExistsError from e

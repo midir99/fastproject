@@ -33,7 +33,7 @@ async def insert_skill(
     try:
         inserted = await _queries.insert_skill(conn, name=name)
         return PublicSkillDTO(**inserted)
-    except asyncpg.exceptions.UniqueViolationError as e:
+    except asyncpg.UniqueViolationError as e:
         msg = str(e)
         if "name" in msg:
             raise SkillNameAlreadyExistsError from e
