@@ -65,16 +65,24 @@ async def get_connection_pool() -> Pool:
 
 
 def with_connection(
-    func: Callable[Concatenate[PoolAcquireContext, P], Awaitable[T]]
+    func: Callable[Concatenate[Optional[PoolAcquireContext], P], Awaitable[T]]
 ) -> Callable[P, Awaitable[T]]:
     """
     Injects a database connection into an async function as the first
     parameter.
+
+    Args:
+      **conn (asyncpg.pool.PoolAcquireContext): A database connection, if None,
+      a new connection is opened and closed. If the connection is provided, the
+      responsibility of closing it is leveraged to the user of the function.
     """
     @functools.wraps(func)
     async def wrapper(*args: P.args, **kwargs: P.kwargs) -> Awaitable[T]:
+        if "conn" in kwargs:
+            return await func(*args, **kwargs)
         conn_pool = await get_connection_pool()
         async with conn_pool.acquire() as conn:
-            rv = await func(conn, *args, **kwargs)
+            kwargs["conn"] = conn
+            rv = await func(*args, **kwargs)
         return rv
     return wrapper

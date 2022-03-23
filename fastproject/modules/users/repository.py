@@ -16,7 +16,9 @@ _queries = aiosql.from_path(Path(__file__).resolve().parent / "sql", "asyncpg")
 
 @with_connection
 async def insert_user(
-        conn: PoolAcquireContext, **kwargs: Any) -> Awaitable[UserEntity]:
+    conn: Optional[PoolAcquireContext] = None,
+    **kwargs: Any
+) -> Awaitable[UserEntity]:
     """Inserts a user into the database.
 
     This function inserts the given values "as-is", so you must make the
@@ -48,13 +50,14 @@ async def insert_user(
 
 @with_connection
 async def get_user_by_id(
-    conn: PoolAcquireContext, user_id: UUID
+    user_id: UUID,
+    conn: Optional[PoolAcquireContext] = None,
 ) -> Awaitable[Optional[UserEntity]]:
     """Returns the user with the specified user_id from the database.
 
     Args:
-      conn: A database connection.
       user_id: The user_id of the searched user.
+      conn: A database connection.
 
     Returns:
       A UserEntity representing the searched user, None if the user was not
@@ -68,15 +71,17 @@ async def get_user_by_id(
 
 @with_connection
 async def update_user_by_id(
-    conn: PoolAcquireContext, user_id: UUID, **kwargs: Any
+    user_id: UUID,
+    conn: Optional[PoolAcquireContext] = None,
+    **kwargs: Any
 ) -> Awaitable[Optional[UserEntity]]:
     """
     Updates the data of a user with the specified user_id in the database. Not
     provided fields won't be updated.
 
     Args:
-      conn: A database connection.
       user_id: The user_id of the user that will be updated.
+      conn: A database connection.
       **kwargs: The fields of the user and the value they will have. Example:
         username="snowball99".
 
@@ -109,13 +114,14 @@ async def update_user_by_id(
 
 @with_connection
 async def delete_user_by_id(
-    conn: PoolAcquireContext, user_id: UUID
+    user_id: UUID,
+    conn: Optional[PoolAcquireContext] = None
 ) -> Awaitable[Optional[UserEntity]]:
     """Deletes the user with the specified user_id from the database.
 
     Args:
-      conn: A database connection.
       user_id: The user_id of the user that will be deleted.
+      conn: A database connection.
 
     Returns:
       A UserEntity representing the deleted user, None if the user was not
