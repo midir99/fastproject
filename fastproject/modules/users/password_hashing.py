@@ -23,7 +23,7 @@ _ARGON2_PARAMS = argon2.Parameters(
     hash_len=argon2.DEFAULT_HASH_LENGTH,
     time_cost=2,
     memory_cost=102400,
-    parallelism=8
+    parallelism=8,
 )
 
 
@@ -77,7 +77,8 @@ def make_password(password: Optional[str], salt: Optional[str] = None) -> str:
         )
     if not isinstance(password, str):
         raise TypeError(
-            f"Password must be a string, got {type(password).__qualname__}.")
+            f"Password must be a string, got {type(password).__qualname__}."
+        )
     salt = salt or generate_salt()
     params = _ARGON2_PARAMS
     encoded = argon2.low_level.hash_secret(

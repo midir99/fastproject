@@ -1,9 +1,10 @@
 """Utils to get database connections based on the application settings."""
+
 import functools
 from collections.abc import Awaitable
 from typing import Callable, Optional, TypeVar
 
-from asyncpg import Pool, create_pool
+import asyncpg.pool
 from asyncpg.pool import PoolAcquireContext
 # TODO: Remove them when switching to Python 3.10
 from typing_extensions import Concatenate, ParamSpec
@@ -13,7 +14,7 @@ from ..config import settings
 P = ParamSpec("P")
 T = TypeVar("T")
 
-_CONN_POOL: Optional[Pool] = None
+_conn_pool: Optional[asyncpg.pool.Pool] = None
 
 
 async def init_connection_pool(
@@ -24,14 +25,14 @@ async def init_connection_pool(
     password: Optional[str] = None,
     min_connections=10,
     max_connections=10,
-    use_settings=False
+    use_settings=False,
 ) -> None:
     """Initializates the database connection pool.
 
     If use_settings is True, the connection parameters are taken from the
     configuration file ".env".
     """
-    global _CONN_POOL  # pylint: disable=global-statement
+    global _conn_pool  # pylint: disable=global-statement
     if use_settings:
         host = settings["DATABASE"]["host"]
         port = int(settings["DATABASE"]["port"])
@@ -41,12 +42,13 @@ async def init_connection_pool(
         min_connections = int(settings["DATABASE"]["min_connections"])
         max_connections = int(settings["DATABASE"]["max_connections"])
     else:
-        params = (host, port, dbname, user, password, min_connections,
-                  max_connections)
+        params = (host, port, dbname, user, password, min_connections, max_connections)
         if None in params:
-            raise ValueError("If use_settings is False, you must specify "
-                             "host, port, dbname and password.")
-    _CONN_POOL = await create_pool(
+            raise ValueError(
+                "If use_settings is False, you must specify "
+                "host, port, dbname and password."
+            )
+    _conn_pool = await asyncpg.pool.create_pool(
         host=host,
         port=port,
         database=dbname,
@@ -57,11 +59,11 @@ async def init_connection_pool(
     )
 
 
-async def get_connection_pool() -> Pool:
+async def get_connection_pool() -> asyncpg.pool.Pool:
     """Returns the database connection pool."""
-    if _CONN_POOL is None:
+    if _conn_pool is None:
         await init_connection_pool(use_settings=True)
-    return _CONN_POOL
+    return _conn_pool
 
 
 def with_connection(
@@ -85,4 +87,5 @@ def with_connection(
             kwargs["conn"] = conn
             rv = await func(*args, **kwargs)
         return rv
+
     return wrapper

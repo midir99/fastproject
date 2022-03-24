@@ -5,10 +5,7 @@ from fastapi import APIRouter
 from . import service
 from .dtos import CreateSkillDTO, PublicSkillDTO, UpdateSkillNameDTO
 
-router = APIRouter(
-    prefix="/skills",
-    tags=["skills"]
-)
+router = APIRouter(prefix="/skills", tags=["skills"])
 
 
 @router.post("", response_model=PublicSkillDTO)
@@ -22,6 +19,5 @@ async def get_skill_by_id(skill_id: UUID):
 
 
 @router.patch("/{skill_id}/name", response_model=PublicSkillDTO)
-async def update_skill_name(
-        skill_id: UUID, update_skill_name_dto: UpdateSkillNameDTO):
+async def update_skill_name(skill_id: UUID, update_skill_name_dto: UpdateSkillNameDTO):
     pass

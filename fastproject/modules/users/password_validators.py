@@ -21,13 +21,13 @@ def _load_password_list(password_list_path=_PASSWORD_LIST_PATH) -> None:
             _PASSWORD_LIST = {p.strip() for p in file}
 
 
-def validate_password_length(
-        password: str, min_length: int, max_length: int) -> str:
+def validate_password_length(password: str, min_length: int, max_length: int) -> str:
     """Validates that the password has the correct length."""
     if not min_length <= len(password) <= max_length:
         raise InvalidPasswordError(
             f"Password can not have less than {min_length} or more "
-            f"than {max_length} characters.")
+            f"than {max_length} characters."
+        )
     return password
 
 
@@ -39,7 +39,8 @@ def validate_password_not_numeric(password: str) -> str:
 
 
 def exceeds_maximum_length_ratio(
-        password: str, max_similarity: float, value: str) -> float:
+    password: str, max_similarity: float, value: str
+) -> float:
     """
     Test that value is within a reasonable range of password.
 
@@ -70,7 +71,8 @@ def exceeds_maximum_length_ratio(
 
 
 def validate_password_not_similar_to_user_attributes(
-        password: str, user_attrs: Optional[dict[str, str]]) -> str:
+    password: str, user_attrs: Optional[dict[str, str]]
+) -> str:
     """
     Validate that the password is sufficiently different from the user's
     attributes.
@@ -92,9 +94,13 @@ def validate_password_not_similar_to_user_attributes(
         for part in parts:
             if exceeds_maximum_length_ratio(password_lower, max_similarity, part):
                 continue
-            if SequenceMatcher(a=password_lower, b=part).quick_ratio() >= max_similarity:
-                raise InvalidPasswordError("The password is very similar to "
-                                           f"the {attr}")
+            if (
+                SequenceMatcher(a=password_lower, b=part).quick_ratio()
+                >= max_similarity
+            ):
+                raise InvalidPasswordError(
+                    "The password is very similar to " f"the {attr}"
+                )
     return password
 
 
@@ -111,15 +117,17 @@ def validate_password_not_common(password: str) -> None:
 
 
 def validate_password(
-        password: str, min_length: int, max_length: int,
-        user_attrs: Optional[list[str]] = None) -> None:
+    password: str,
+    min_length: int,
+    max_length: int,
+    user_attrs: Optional[list[str]] = None,
+) -> None:
     """
     Validates the password with all the password validation related
     functions in this module.
     """
     password = validate_password_length(password, min_length, max_length)
     password = validate_password_not_numeric(password)
-    password = validate_password_not_similar_to_user_attributes(
-        password, user_attrs)
+    password = validate_password_not_similar_to_user_attributes(password, user_attrs)
     password = validate_password_not_common(password)
     return password

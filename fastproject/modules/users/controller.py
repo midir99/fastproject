@@ -9,22 +9,17 @@ from . import service
 from .exceptions import EmailAlreadyExistsError, UsernameAlreadyExistsError
 from .models import PatchableUserData, PublicUserData, UserRegistrationData
 
-controller = APIRouter(
-    prefix="/users",
-    tags=["users"]
-)
+controller = APIRouter(prefix="/users", tags=["users"])
 
 
 @controller.post(
     "",
     response_model=PublicUserData,
     status_code=status.HTTP_201_CREATED,
-    responses={
-        status.HTTP_409_CONFLICT: ConflictResponse
-    }
+    responses={status.HTTP_409_CONFLICT: ConflictResponse},
 )
 async def register_user(
-    user_registration_data: UserRegistrationData
+    user_registration_data: UserRegistrationData,
 ) -> Awaitable[PublicUserData]:
     try:
         inserted = await service.insert_user(
@@ -36,20 +31,20 @@ async def register_user(
         )
         return PublicUserData(**inserted.dict())
     except UsernameAlreadyExistsError as e:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT,
-                            detail="Username already taken.") from e
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="Username already taken."
+        ) from e
     except EmailAlreadyExistsError as e:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT,
-                            detail="Email already taken.") from e
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="Email already taken."
+        ) from e
 
 
 @controller.get(
     "/{user_id}",
     response_model=PublicUserData,
     status_code=status.HTTP_200_OK,
-    responses={
-        status.HTTP_404_NOT_FOUND: NotFoundResponse
-    },
+    responses={status.HTTP_404_NOT_FOUND: NotFoundResponse},
 )
 async def get_user(user_id: UUID) -> Awaitable[Optional[PublicUserData]]:
     searched = await service.get_user_by_id(user_id)
@@ -58,32 +53,29 @@ async def get_user(user_id: UUID) -> Awaitable[Optional[PublicUserData]]:
     return PublicUserData(**searched.dict())
 
 
-@controller.patch(
-    "/{user_id}",
-    response_model=PublicUserData
-)
+@controller.patch("/{user_id}", response_model=PublicUserData)
 async def patch_user(
     user_id: UUID, patchable_user_data: PatchableUserData
 ) -> Awaitable[Optional[PublicUserData]]:
     patchable_user_data = patchable_user_data.dict(exclude_unset=True)
     try:
-        updated = await service.update_user_by_id(user_id=user_id,
-                                                  **patchable_user_data)
+        updated = await service.update_user_by_id(
+            user_id=user_id, **patchable_user_data
+        )
         if not updated:
             return None
         return PublicUserData(**updated.dict())
     except UsernameAlreadyExistsError as e:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT,
-                            detail="Username already taken.") from e
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="Username already taken."
+        ) from e
     except EmailAlreadyExistsError as e:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT,
-                            detail="Email already taken.") from e
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="Email already taken."
+        ) from e
 
 
-@controller.delete(
-    "/{user_id}",
-    response_model=PublicUserData
-)
+@controller.delete("/{user_id}", response_model=PublicUserData)
 async def delete_user(user_id: UUID) -> Awaitable[Optional[PublicUserData]]:
     deleted = await service.delete_user_by_id(user_id)
     if not deleted:

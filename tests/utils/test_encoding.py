@@ -21,8 +21,8 @@ from fastproject.utils.encoding import (force_bytes, is_protected_type,
         (False, True),
         ("Shanalotte", False),
         (b"Twin Princess", False),
-        ([], False)
-    ]
+        ([], False),
+    ],
 )
 def test_is_protected_type(protected_type, is_protected_type_):
     assert is_protected_type(protected_type) is is_protected_type_
@@ -36,7 +36,10 @@ def test_force_bytes_exception():
     error_msg = "This is an exception, voilà"
     exc = ValueError(error_msg)
     assert force_bytes(exc) == error_msg.encode()
-    assert force_bytes(exc, encoding="ascii", errors="ignore") == b"This is an exception, voil"
+    assert (
+        force_bytes(exc, encoding="ascii", errors="ignore")
+        == b"This is an exception, voil"
+    )
 
 
 def test_force_bytes_strings_only():

@@ -8,7 +8,7 @@ def updater_fields(
     fields: Optional[Iterable[str]] = None,
     null_fields: Optional[Iterable[str]] = None,
     updater_flag_preffix="update_",
-    **kwargs: Any
+    **kwargs: Any,
 ) -> dict[str, Any]:
     """
     Prepares the specified fields in **kwargs to be used in an "update"
@@ -74,6 +74,8 @@ def updater_fields(
         null_fields = ()
     return {
         **{field: kwargs.get(field) for field in fields + null_fields},
-        **{f"{updater_flag_preffix}{field}": True if field in kwargs else False
-           for field in null_fields}
+        **{
+            f"{updater_flag_preffix}{field}": True if field in kwargs else False
+            for field in null_fields
+        },
     }

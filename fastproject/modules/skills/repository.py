@@ -13,8 +13,7 @@ _queries = aiosql.from_path(Path(__file__).resolve().parent / "sql", "asyncpg")
 
 
 @with_connection
-async def insert_skill(
-        conn: PoolAcquireContext, name: str) -> Optional[PublicSkillDTO]:
+async def insert_skill(conn: PoolAcquireContext, name: str) -> Optional[PublicSkillDTO]:
     """Inserts a skill into the database.
 
     This function inserts the given values "as-is", so you must make the
@@ -42,7 +41,8 @@ async def insert_skill(
 
 @with_connection
 async def get_skill_by_id(
-        conn: PoolAcquireContext, skill_id: str) -> Optional[PublicSkillDTO]:
+    conn: PoolAcquireContext, skill_id: str
+) -> Optional[PublicSkillDTO]:
     """Returns a skill from the database with the given skill_id.
 
     Args:

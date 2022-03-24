@@ -16,8 +16,7 @@ _queries = aiosql.from_path(Path(__file__).resolve().parent / "sql", "asyncpg")
 
 @with_connection
 async def insert_user(
-    conn: Optional[PoolAcquireContext] = None,
-    **kwargs: Any
+    conn: Optional[PoolAcquireContext] = None, **kwargs: Any
 ) -> Awaitable[UserEntity]:
     """Inserts a user into the database.
 
@@ -71,9 +70,7 @@ async def get_user_by_id(
 
 @with_connection
 async def update_user_by_id(
-    user_id: UUID,
-    conn: Optional[PoolAcquireContext] = None,
-    **kwargs: Any
+    user_id: UUID, conn: Optional[PoolAcquireContext] = None, **kwargs: Any
 ) -> Awaitable[Optional[UserEntity]]:
     """
     Updates the data of a user with the specified user_id in the database. Not
@@ -93,13 +90,23 @@ async def update_user_by_id(
       UsernameAlreadyExistsError: If the username already exists.
       EmailAlreadyExistsError: If the email already exists.
     """
-    fields = ("username", "email", "first_name", "last_name", "password",
-              "is_superuser", "is_staff", "is_active", "date_joined",)
+    fields = (
+        "username",
+        "email",
+        "first_name",
+        "last_name",
+        "password",
+        "is_superuser",
+        "is_staff",
+        "is_active",
+        "date_joined",
+    )
     null_fields = ("last_login",)
     update_data = updater_fields(fields, null_fields, **kwargs)
     try:
         updated = await _queries.update_user_by_id(
-            conn, uuser_id=user_id, **update_data)
+            conn, uuser_id=user_id, **update_data
+        )
         if not updated:
             return None
         return UserEntity(user_id=updated["uuser_id"], **updated)
@@ -114,8 +121,7 @@ async def update_user_by_id(
 
 @with_connection
 async def delete_user_by_id(
-    user_id: UUID,
-    conn: Optional[PoolAcquireContext] = None
+    user_id: UUID, conn: Optional[PoolAcquireContext] = None
 ) -> Awaitable[Optional[UserEntity]]:
     """Deletes the user with the specified user_id from the database.
 

@@ -21,7 +21,7 @@ async def insert_user(
     is_superuser=False,
     is_staff=False,
     is_active=True,
-    last_login: Optional[datetime.datetime] = None
+    last_login: Optional[datetime.datetime] = None,
 ) -> Awaitable[UserEntity]:
     """Inserts a user into the database.
 
@@ -53,10 +53,17 @@ async def insert_user(
         date_joined = datetime.datetime.now(tz=tzinfo)
     password_hash = make_password(password)
     return await repository.insert_user(
-        username=username, email=email, first_name=first_name,
-        last_name=last_name, password=password_hash, date_joined=date_joined,
-        is_superuser=is_superuser, is_staff=is_staff, is_active=is_active,
-        last_login=last_login)
+        username=username,
+        email=email,
+        first_name=first_name,
+        last_name=last_name,
+        password=password_hash,
+        date_joined=date_joined,
+        is_superuser=is_superuser,
+        is_staff=is_staff,
+        is_active=is_active,
+        last_login=last_login,
+    )
 
 
 async def get_user_by_id(user_id: UUID) -> Awaitable[Optional[UserEntity]]:
@@ -73,7 +80,8 @@ async def get_user_by_id(user_id: UUID) -> Awaitable[Optional[UserEntity]]:
 
 
 async def update_user_by_id(
-        user_id: UUID, **kwargs: Any) -> Awaitable[Optional[UserEntity]]:
+    user_id: UUID, **kwargs: Any
+) -> Awaitable[Optional[UserEntity]]:
     """Updates the data of the user with the specified user_id in the database.
 
     Args:

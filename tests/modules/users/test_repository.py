@@ -3,6 +3,7 @@ from uuid import UUID
 
 import asyncpg
 import pytest
+
 from fastproject.modules.users import repository
 from fastproject.modules.users.exceptions import (EmailAlreadyExistsError,
                                                   UsernameAlreadyExistsError)
@@ -23,11 +24,10 @@ async def test_insert_user(monkeypatch):
             "is_staff": kwargs["is_staff"],
             "is_active": kwargs["is_active"],
             "date_joined": kwargs["date_joined"],
-            "last_login": kwargs["last_login"]
+            "last_login": kwargs["last_login"],
         }
 
-    monkeypatch.setattr(repository._queries, "insert_user",
-                        mock_queries_insert_user)
+    monkeypatch.setattr(repository._queries, "insert_user", mock_queries_insert_user)
     inserted = await repository.insert_user(
         username="soulofcinder",
         email="soc@kotff.com",
@@ -57,16 +57,14 @@ async def test_insert_user(monkeypatch):
     async def mock_queries_insert_user(conn, **kwargs):
         raise asyncpg.UniqueViolationError("username")
 
-    monkeypatch.setattr(repository._queries, "insert_user",
-                        mock_queries_insert_user)
+    monkeypatch.setattr(repository._queries, "insert_user", mock_queries_insert_user)
     with pytest.raises(UsernameAlreadyExistsError):
         await repository.insert_user(conn=None)
 
     async def mock_queries_insert_user(conn, **kwargs):
         raise asyncpg.UniqueViolationError("email")
 
-    monkeypatch.setattr(repository._queries, "insert_user",
-                        mock_queries_insert_user)
+    monkeypatch.setattr(repository._queries, "insert_user", mock_queries_insert_user)
     with pytest.raises(EmailAlreadyExistsError):
         await repository.insert_user(conn=None)
 
@@ -90,10 +88,12 @@ async def test_get_user_by_id(monkeypatch):
             }
         return None
 
-    monkeypatch.setattr(repository._queries, "get_user_by_id",
-                        mock_queries_get_user_by_id)
+    monkeypatch.setattr(
+        repository._queries, "get_user_by_id", mock_queries_get_user_by_id
+    )
     searched = await repository.get_user_by_id(
-        UUID("de623351-1398-4a83-98c5-91a34f5919ee"), conn=None)
+        UUID("de623351-1398-4a83-98c5-91a34f5919ee"), conn=None
+    )
     assert type(searched) is UserEntity
     assert searched.user_id == UUID("de623351-1398-4a83-98c5-91a34f5919ee")
     assert searched.username == "soulofcinder"
@@ -107,5 +107,6 @@ async def test_get_user_by_id(monkeypatch):
     assert searched.date_joined == datetime.datetime(1999, 1, 22)
     assert searched.last_login == datetime.datetime(2002, 11, 26)
     searched = await repository.get_user_by_id(
-        UUID("de623351-1398-4a83-98c5-91a34f5919aE"), conn=None)
+        UUID("de623351-1398-4a83-98c5-91a34f5919aE"), conn=None
+    )
     assert searched is None

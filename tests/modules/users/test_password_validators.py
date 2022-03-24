@@ -13,29 +13,26 @@ from fastproject.modules.users.password_validators import (
         ("123456", 6, 6, False),
         ("1234567", 6, 7, False),
         ("12", 6, 7, True),
-    ]
+    ],
 )
 def test_validate_password_length(password, min_len, max_len, raises):
     if raises:
-        with pytest.raises(InvalidPasswordError,
-                           match="Password can not have less than"):
+        with pytest.raises(
+            InvalidPasswordError, match="Password can not have less than"
+        ):
             validate_password_length(password, min_len, max_len)
     else:
         validate_password_length(password, min_len, max_len)
 
 
 @pytest.mark.parametrize(
-    "password,raises",
-    [
-        ("123456", True),
-        ("a12345", False),
-        ("abcded", False)
-    ]
+    "password,raises", [("123456", True), ("a12345", False), ("abcded", False)]
 )
 def test_validate_password_not_numeric(password, raises):
     if raises:
-        with pytest.raises(InvalidPasswordError,
-                           match="Password can not be entirely numeric."):
+        with pytest.raises(
+            InvalidPasswordError, match="Password can not be entirely numeric."
+        ):
             validate_password_not_numeric(password)
     else:
         validate_password_not_numeric(password)

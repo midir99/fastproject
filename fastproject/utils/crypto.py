@@ -3,8 +3,7 @@ from typing import AnyStr
 
 from .encoding import force_bytes
 
-RANDOM_STRING_CHARS = \
-    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+RANDOM_STRING_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 
 def constant_time_compare(val1: AnyStr, val2: AnyStr) -> bool:

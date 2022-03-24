@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from .modules import users, skills
+from .modules import skills, users
 
 app = FastAPI()
 app.include_router(users.controller)

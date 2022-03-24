@@ -4,7 +4,12 @@ from decimal import Decimal
 from typing import Any
 
 _PROTECTED_TYPES = (
-    type(None), int, float, Decimal, datetime.datetime, datetime.date,
+    type(None),
+    int,
+    float,
+    Decimal,
+    datetime.datetime,
+    datetime.date,
     datetime.time,
 )
 
@@ -18,9 +23,7 @@ def is_protected_type(obj: Any) -> bool:
     return isinstance(obj, _PROTECTED_TYPES)
 
 
-def force_bytes(
-    s: Any, encoding="utf-8", strings_only=False, errors="strict"
-) -> bytes:
+def force_bytes(s: Any, encoding="utf-8", strings_only=False, errors="strict") -> bytes:
     """
     Returns a bytestring version of 's', encoded as specified in 'encoding'.
 

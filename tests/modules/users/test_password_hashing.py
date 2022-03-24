@@ -1,13 +1,11 @@
 import pytest
 
-from fastproject.modules.users.password_hashing import (
-    check_password,
-    generate_salt,
-    is_password_usable,
-    make_password,
-    must_update,
-    must_update_salt,
-)
+from fastproject.modules.users.password_hashing import (check_password,
+                                                        generate_salt,
+                                                        is_password_usable,
+                                                        make_password,
+                                                        must_update,
+                                                        must_update_salt)
 
 
 @pytest.mark.parametrize(
@@ -19,7 +17,7 @@ from fastproject.modules.users.password_hashing import (
         ("!4OKBEajkn5PIt4m6lA9DnmJsGss3n1Emot4vZPbb", False),
         ("!BTwbT9gEta5BLX0MoupCPeNo4NDe9ay7vJNvqeNp", False),
         ("!zyA5BsWm2ygfC3izkKUtse0N0Y3KwYqeN7A7FcrC", False),
-    ]
+    ],
 )
 def test_is_password_usable(password, is_usable):
     assert is_password_usable(password) is is_usable
