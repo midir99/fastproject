@@ -3,3 +3,5 @@ disable=
     invalid-name,
     too-many-arguments,
     relative-beyond-top-level,
+
+max-line-length=88
