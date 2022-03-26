@@ -1,6 +1,5 @@
 import datetime
 import zoneinfo
-from collections.abc import Awaitable
 from typing import Any, Optional
 from uuid import UUID
 
@@ -22,7 +21,7 @@ async def insert_user(
     is_staff=False,
     is_active=True,
     last_login: Optional[datetime.datetime] = None,
-) -> Awaitable[UserEntity]:
+) -> UserEntity:
     """Inserts a user into the database.
 
     Args:
@@ -66,7 +65,7 @@ async def insert_user(
     )
 
 
-async def get_user_by_id(user_id: UUID) -> Awaitable[Optional[UserEntity]]:
+async def get_user_by_id(user_id: UUID) -> Optional[UserEntity]:
     """Returns the user with the specified user_id from the database.
 
     Args:
@@ -79,9 +78,7 @@ async def get_user_by_id(user_id: UUID) -> Awaitable[Optional[UserEntity]]:
     return await repository.get_user_by_id(user_id)
 
 
-async def update_user_by_id(
-    user_id: UUID, **kwargs: Any
-) -> Awaitable[Optional[UserEntity]]:
+async def update_user_by_id(user_id: UUID, **kwargs: Any) -> Optional[UserEntity]:
     """Updates the data of the user with the specified user_id in the database.
 
     Args:
@@ -119,7 +116,7 @@ async def update_user_by_id(
     return await repository.update_user_by_id(user_id, **kwargs)
 
 
-async def delete_user_by_id(user_id: UUID) -> Awaitable[Optional[UserEntity]]:
+async def delete_user_by_id(user_id: UUID) -> Optional[UserEntity]:
     """Deletes the user with the specified user_id from the database.
 
     Args:

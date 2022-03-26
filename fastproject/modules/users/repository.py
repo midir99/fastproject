@@ -1,4 +1,3 @@
-from collections.abc import Awaitable
 from pathlib import Path
 from typing import Any, Optional
 from uuid import UUID
@@ -15,9 +14,7 @@ _queries = aiosql.from_path(Path(__file__).resolve().parent / "sql", "asyncpg")
 
 
 @with_connection
-async def insert_user(
-    conn: Optional[PoolAcquireContext] = None, **kwargs: Any
-) -> Awaitable[UserEntity]:
+async def insert_user(conn: PoolAcquireContext, **kwargs: Any) -> UserEntity:
     """Inserts a user into the database.
 
     This function inserts the given values "as-is", so you must make the
@@ -49,9 +46,8 @@ async def insert_user(
 
 @with_connection
 async def get_user_by_id(
-    user_id: UUID,
-    conn: Optional[PoolAcquireContext] = None,
-) -> Awaitable[Optional[UserEntity]]:
+    conn: PoolAcquireContext, user_id: UUID
+) -> Optional[UserEntity]:
     """Returns the user with the specified user_id from the database.
 
     Args:
@@ -70,8 +66,8 @@ async def get_user_by_id(
 
 @with_connection
 async def update_user_by_id(
-    user_id: UUID, conn: Optional[PoolAcquireContext] = None, **kwargs: Any
-) -> Awaitable[Optional[UserEntity]]:
+    conn: PoolAcquireContext, user_id: UUID, **kwargs: Any
+) -> Optional[UserEntity]:
     """
     Updates the data of a user with the specified user_id in the database. Not
     provided fields won't be updated.
@@ -121,8 +117,8 @@ async def update_user_by_id(
 
 @with_connection
 async def delete_user_by_id(
-    user_id: UUID, conn: Optional[PoolAcquireContext] = None
-) -> Awaitable[Optional[UserEntity]]:
+    conn: PoolAcquireContext, user_id: UUID
+) -> Optional[UserEntity]:
     """Deletes the user with the specified user_id from the database.
 
     Args:
@@ -136,4 +132,4 @@ async def delete_user_by_id(
     deleted = await _queries.delete_user_by_id(conn, uuser_id=user_id)
     if not deleted:
         return None
-    return UserEntity(user_id=deleted["user_id"], **deleted)
+    return UserEntity(user_id=deleted["uuser_id"], **deleted)

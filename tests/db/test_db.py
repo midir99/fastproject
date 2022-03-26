@@ -70,8 +70,8 @@ async def test_with_connection(monkeypatch):
     monkeypatch.setattr(fastproject.db.db, "_conn_pool", None)
 
     @with_connection
-    async def decorated_function(*args, **kwargs):
-        assert "conn" in kwargs
+    async def repository_function(conn):
+        assert conn is not None
 
-    await decorated_function(conn=None)
-    await decorated_function()
+    await repository_function(conn=MockPoolAcquireContext())
+    await repository_function()

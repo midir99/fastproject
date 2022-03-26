@@ -1,4 +1,3 @@
-from collections.abc import Awaitable
 from typing import Optional
 from uuid import UUID
 
@@ -20,7 +19,7 @@ controller = APIRouter(prefix="/users", tags=["users"])
 )
 async def register_user(
     user_registration_data: UserRegistrationData,
-) -> Awaitable[PublicUserData]:
+) -> PublicUserData:
     try:
         inserted = await service.insert_user(
             username=user_registration_data.username,
@@ -46,7 +45,7 @@ async def register_user(
     status_code=status.HTTP_200_OK,
     responses={status.HTTP_404_NOT_FOUND: NotFoundResponse},
 )
-async def get_user(user_id: UUID) -> Awaitable[Optional[PublicUserData]]:
+async def get_user(user_id: UUID) -> Optional[PublicUserData]:
     searched = await service.get_user_by_id(user_id)
     if not searched:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
@@ -56,7 +55,7 @@ async def get_user(user_id: UUID) -> Awaitable[Optional[PublicUserData]]:
 @controller.patch("/{user_id}", response_model=PublicUserData)
 async def patch_user(
     user_id: UUID, patchable_user_data: PatchableUserData
-) -> Awaitable[Optional[PublicUserData]]:
+) -> Optional[PublicUserData]:
     patchable_user_data = patchable_user_data.dict(exclude_unset=True)
     try:
         updated = await service.update_user_by_id(
@@ -76,7 +75,7 @@ async def patch_user(
 
 
 @controller.delete("/{user_id}", response_model=PublicUserData)
-async def delete_user(user_id: UUID) -> Awaitable[Optional[PublicUserData]]:
+async def delete_user(user_id: UUID) -> Optional[PublicUserData]:
     deleted = await service.delete_user_by_id(user_id)
     if not deleted:
         return None

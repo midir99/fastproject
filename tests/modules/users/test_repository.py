@@ -10,9 +10,13 @@ from fastproject.modules.users.exceptions import (EmailAlreadyExistsError,
 from fastproject.modules.users.models import UserEntity
 
 
+class MockPoolAcquireContext:
+    pass
+
+
 @pytest.mark.asyncio
 async def test_insert_user(monkeypatch):
-    async def mock_queries_insert_user(conn, **kwargs):
+    async def mock_insert_user(conn, **kwargs):
         return {
             "uuser_id": UUID("de623351-1398-4a83-98c5-91a34f5919ee"),
             "username": kwargs["username"],
@@ -27,7 +31,7 @@ async def test_insert_user(monkeypatch):
             "last_login": kwargs["last_login"],
         }
 
-    monkeypatch.setattr(repository._queries, "insert_user", mock_queries_insert_user)
+    monkeypatch.setattr(repository._queries, "insert_user", mock_insert_user)
     inserted = await repository.insert_user(
         username="soulofcinder",
         email="soc@kotff.com",
@@ -39,39 +43,58 @@ async def test_insert_user(monkeypatch):
         is_active=True,
         date_joined=datetime.datetime(1999, 1, 22),
         last_login=datetime.datetime(2002, 11, 26),
-        conn=None,
+        conn=MockPoolAcquireContext(),
     )
     assert type(inserted) is UserEntity
-    assert inserted.user_id == UUID("de623351-1398-4a83-98c5-91a34f5919ee")
-    assert inserted.username == "soulofcinder"
-    assert inserted.email == "soc@kotff.com"
-    assert inserted.first_name == "Soul"
-    assert inserted.last_name == "Of Cinder"
-    assert inserted.password == "averysecrethash"
-    assert inserted.is_superuser is True
-    assert inserted.is_staff is True
-    assert inserted.is_active is True
-    assert inserted.date_joined == datetime.datetime(1999, 1, 22)
-    assert inserted.last_login == datetime.datetime(2002, 11, 26)
 
-    async def mock_queries_insert_user(conn, **kwargs):
+    async def mock_insert_user(conn, **kwargs):
         raise asyncpg.UniqueViolationError("username")
 
-    monkeypatch.setattr(repository._queries, "insert_user", mock_queries_insert_user)
+    monkeypatch.setattr(repository._queries, "insert_user", mock_insert_user)
     with pytest.raises(UsernameAlreadyExistsError):
-        await repository.insert_user(conn=None)
+        await repository.insert_user(conn=MockPoolAcquireContext())
 
-    async def mock_queries_insert_user(conn, **kwargs):
+    async def mock_insert_user(conn, **kwargs):
         raise asyncpg.UniqueViolationError("email")
 
-    monkeypatch.setattr(repository._queries, "insert_user", mock_queries_insert_user)
+    monkeypatch.setattr(repository._queries, "insert_user", mock_insert_user)
     with pytest.raises(EmailAlreadyExistsError):
-        await repository.insert_user(conn=None)
+        await repository.insert_user(conn=MockPoolAcquireContext())
 
 
 @pytest.mark.asyncio
 async def test_get_user_by_id(monkeypatch):
-    async def mock_queries_get_user_by_id(conn, uuser_id):
+    async def mock_get_user_by_id(conn, uuser_id):
+        if uuser_id == UUID("de623351-1398-4a83-98c5-91a34f5919ee"):
+            return {
+                "uuser_id": UUID("de623351-1398-4a83-98c5-91a34f5919ee"),
+                "username": "soulofcinder",
+                "email": "soc@kotff.com",
+                "first_name": "Soul",
+                "last_name": "Of Cinder",
+                "password": "averysecrethash",
+                "is_superuser": True,
+                "is_staff": True,
+                "is_active": True,
+                "date_joined": datetime.datetime(1999, 1, 22),
+                "last_login": datetime.datetime(2002, 11, 26),
+            }
+        return None
+
+    monkeypatch.setattr(repository._queries, "get_user_by_id", mock_get_user_by_id)
+    searched = await repository.get_user_by_id(
+        UUID("de623351-1398-4a83-98c5-91a34f5919ee"), conn=MockPoolAcquireContext()
+    )
+    assert type(searched) is UserEntity
+    searched = await repository.get_user_by_id(
+        UUID("de623351-1398-4a83-98c5-91a34f5919aE"), conn=MockPoolAcquireContext()
+    )
+    assert searched is None
+
+
+@pytest.mark.asyncio
+async def test_update_user_by_id(monkeypatch):
+    async def mock_update_user_by_id(conn, uuser_id, **kwargs):
         if uuser_id == UUID("de623351-1398-4a83-98c5-91a34f5919ee"):
             return {
                 "uuser_id": UUID("de623351-1398-4a83-98c5-91a34f5919ee"),
@@ -89,24 +112,63 @@ async def test_get_user_by_id(monkeypatch):
         return None
 
     monkeypatch.setattr(
-        repository._queries, "get_user_by_id", mock_queries_get_user_by_id
+        repository._queries, "update_user_by_id", mock_update_user_by_id
     )
-    searched = await repository.get_user_by_id(
-        UUID("de623351-1398-4a83-98c5-91a34f5919ee"), conn=None
+    updated = await repository.update_user_by_id(
+        UUID("de623351-1398-4a83-98c5-91a34f5919ee")
     )
-    assert type(searched) is UserEntity
-    assert searched.user_id == UUID("de623351-1398-4a83-98c5-91a34f5919ee")
-    assert searched.username == "soulofcinder"
-    assert searched.email == "soc@kotff.com"
-    assert searched.first_name == "Soul"
-    assert searched.last_name == "Of Cinder"
-    assert searched.password == "averysecrethash"
-    assert searched.is_superuser is True
-    assert searched.is_staff is True
-    assert searched.is_active is True
-    assert searched.date_joined == datetime.datetime(1999, 1, 22)
-    assert searched.last_login == datetime.datetime(2002, 11, 26)
-    searched = await repository.get_user_by_id(
-        UUID("de623351-1398-4a83-98c5-91a34f5919aE"), conn=None
+    assert type(updated) is UserEntity
+    updated = await repository.update_user_by_id(
+        UUID("de623351-1398-4a83-98c5-91a34f5919AA")
     )
-    assert searched is None
+    assert updated is None
+
+    async def mock_update_user_by_id(conn, uuser_id, **kwargs):
+        raise asyncpg.UniqueViolationError("username")
+
+    monkeypatch.setattr(
+        repository._queries, "update_user_by_id", mock_update_user_by_id
+    )
+    with pytest.raises(UsernameAlreadyExistsError):
+        await repository.update_user_by_id(UUID("de623351-1398-4a83-98c5-91a34f5919ee"))
+
+    async def mock_update_user_by_id(conn, uuser_id, **kwargs):
+        raise asyncpg.UniqueViolationError("email")
+
+    monkeypatch.setattr(
+        repository._queries, "update_user_by_id", mock_update_user_by_id
+    )
+    with pytest.raises(EmailAlreadyExistsError):
+        await repository.update_user_by_id(UUID("de623351-1398-4a83-98c5-91a34f5919ee"))
+
+
+@pytest.mark.asyncio
+async def test_delete_user_by_id(monkeypatch):
+    async def mock_delete_user_by_id(conn, uuser_id):
+        if uuser_id == UUID("de623351-1398-4a83-98c5-91a34f5919ee"):
+            return {
+                "uuser_id": UUID("de623351-1398-4a83-98c5-91a34f5919ee"),
+                "username": "soulofcinder",
+                "email": "soc@kotff.com",
+                "first_name": "Soul",
+                "last_name": "Of Cinder",
+                "password": "averysecrethash",
+                "is_superuser": True,
+                "is_staff": True,
+                "is_active": True,
+                "date_joined": datetime.datetime(1999, 1, 22),
+                "last_login": datetime.datetime(2002, 11, 26),
+            }
+        return None
+
+    monkeypatch.setattr(
+        repository._queries, "delete_user_by_id", mock_delete_user_by_id
+    )
+    deleted = await repository.delete_user_by_id(
+        UUID("de623351-1398-4a83-98c5-91a34f5919ee"), conn=MockPoolAcquireContext()
+    )
+    assert type(deleted) is UserEntity
+    deleted = await repository.delete_user_by_id(
+        UUID("de623351-1398-4a83-98c5-91a34f5919aE"), conn=MockPoolAcquireContext()
+    )
+    assert deleted is None
