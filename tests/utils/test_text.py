@@ -1,6 +1,8 @@
+"""Tests for module utils.text."""
+
 import pytest
 
-from fastproject.utils.text import unicode_ci_compare
+from fastproject.utils import text
 
 
 @pytest.mark.parametrize(
@@ -12,4 +14,4 @@ from fastproject.utils.text import unicode_ci_compare
     ],
 )
 def test_unicode_ci_compare(str1, str2):
-    assert unicode_ci_compare(str1, str2) is True
+    assert text.unicode_ci_compare(str1, str2) is True

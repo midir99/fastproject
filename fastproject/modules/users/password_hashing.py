@@ -1,4 +1,4 @@
-"""Functions to hash and verify passwords using Argon2 algorithm."""
+"""Utilities to hash and verify passwords using Argon2 algorithm."""
 
 import base64
 import math
@@ -6,7 +6,7 @@ from typing import Any, Optional
 
 import argon2
 
-from ...utils.crypto import RANDOM_STRING_CHARS, get_random_string
+from ...utils import crypto
 
 SALT_ENTROPY = 128
 
@@ -53,14 +53,16 @@ def generate_salt(salt_entropy=SALT_ENTROPY) -> str:
     of at least `salt_entropy` bits.
     """
     # Each character in the salt provides log_2(len(alphabet)) bits of entropy.
-    char_count = math.ceil(salt_entropy / math.log2(len(RANDOM_STRING_CHARS)))
-    return get_random_string(char_count, allowed_chars=RANDOM_STRING_CHARS)
+    char_count = math.ceil(salt_entropy / math.log2(len(crypto.RANDOM_STRING_CHARS)))
+    return crypto.get_random_string(
+        char_count, allowed_chars=crypto.RANDOM_STRING_CHARS
+    )
 
 
 def must_update_salt(salt, expected_entropy: int) -> bool:
     """Returns True is the salt used to hash a password must be updated."""
     # Each character in the salt provides log_2(len(alphabet)) bits of entropy.
-    return len(salt) * math.log2(len(RANDOM_STRING_CHARS)) < expected_entropy
+    return len(salt) * math.log2(len(crypto.RANDOM_STRING_CHARS)) < expected_entropy
 
 
 def make_password(password: Optional[str], salt: Optional[str] = None) -> str:
@@ -72,7 +74,7 @@ def make_password(password: Optional[str], salt: Optional[str] = None) -> str:
     reduces chances of gaining access to staff or superuser accounts.
     """
     if password is None:
-        return UNUSABLE_PASSWORD_PREFIX + get_random_string(
+        return UNUSABLE_PASSWORD_PREFIX + crypto.get_random_string(
             UNUSABLE_PASSWORD_SUFFIX_LENGTH
         )
     if not isinstance(password, str):

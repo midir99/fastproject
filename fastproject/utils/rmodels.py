@@ -1,7 +1,7 @@
 """Generic Pydantic models."""
 
-from pydantic import BaseModel
+import pydantic
 
 
-class DetailMessage(BaseModel):
+class DetailMessage(pydantic.BaseModel):
     detail: str

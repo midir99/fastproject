@@ -1,15 +1,14 @@
-"""Utils to get database connections based on the application settings."""
+"""Utilities to get database connections based on the application settings."""
 
 import functools
 from collections.abc import Awaitable
 from typing import Callable, Optional, TypeVar
 
 import asyncpg.pool
-from asyncpg.pool import PoolAcquireContext
 # TODO: Remove them when switching to Python 3.10
 from typing_extensions import Concatenate, ParamSpec
 
-from ..config import settings
+from .. import config
 
 P = ParamSpec("P")
 T = TypeVar("T")
@@ -32,15 +31,15 @@ async def init_connection_pool(
     If use_settings is True, the connection parameters are taken from the
     configuration file ".env".
     """
-    global _conn_pool  # pylint: disable=global-statement
+    global _conn_pool
     if use_settings:
-        host = settings["DATABASE"]["host"]
-        port = int(settings["DATABASE"]["port"])
-        dbname = settings["DATABASE"]["dbname"]
-        user = settings["DATABASE"]["user"]
-        password = settings["DATABASE"]["password"]
-        min_connections = int(settings["DATABASE"]["min_connections"])
-        max_connections = int(settings["DATABASE"]["max_connections"])
+        host = config.settings["DATABASE"]["host"]
+        port = int(config.settings["DATABASE"]["port"])
+        dbname = config.settings["DATABASE"]["dbname"]
+        user = config.settings["DATABASE"]["user"]
+        password = config.settings["DATABASE"]["password"]
+        min_connections = int(config.settings["DATABASE"]["min_connections"])
+        max_connections = int(config.settings["DATABASE"]["max_connections"])
     else:
         params = (host, port, dbname, user, password, min_connections, max_connections)
         if None in params:
@@ -67,7 +66,7 @@ async def get_connection_pool() -> asyncpg.pool.Pool:
 
 
 def with_connection(
-    func: Callable[Concatenate[PoolAcquireContext, P], Awaitable[T]]
+    func: Callable[Concatenate[asyncpg.pool.PoolAcquireContext, P], Awaitable[T]]
 ) -> Callable[P, Awaitable[T]]:
     """
     Injects a database connection into an async function as the first

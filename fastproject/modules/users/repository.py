@@ -1,20 +1,40 @@
-from pathlib import Path
+"""Repository module."""
+
+import dataclasses
+import datetime
+import pathlib
+import uuid
 from typing import Any, Optional
-from uuid import UUID
 
 import aiosql
 import asyncpg
-from asyncpg.pool import PoolAcquireContext
+import asyncpg.pool
 
-from ...db import updater_fields, with_connection
-from .exceptions import EmailAlreadyExistsError, UsernameAlreadyExistsError
-from .models import UserEntity
+from ... import db
+from . import exceptions
 
-_queries = aiosql.from_path(Path(__file__).resolve().parent / "sql", "asyncpg")
+_queries = aiosql.from_path(pathlib.Path(__file__).resolve().parent / "sql", "asyncpg")
 
 
-@with_connection
-async def insert_user(conn: PoolAcquireContext, **kwargs: Any) -> UserEntity:
+@dataclasses.dataclass
+class User:
+    """Represents the entity user in the database."""
+
+    user_id: uuid.UUID
+    username: str
+    email: str
+    first_name: str
+    last_name: str
+    password: str
+    is_superuser: bool
+    is_staff: bool
+    is_active: bool
+    date_joined: datetime.datetime
+    last_login: Optional[datetime.datetime]
+
+
+@db.with_connection
+async def insert_user(conn: asyncpg.pool.PoolAcquireContext, **kwargs: Any) -> User:
     """Inserts a user into the database.
 
     This function inserts the given values "as-is", so you must make the
@@ -26,7 +46,7 @@ async def insert_user(conn: PoolAcquireContext, **kwargs: Any) -> UserEntity:
         username="snowball99".
 
     Returns:
-      A UserEntity representing the inserted user.
+      A User representing the inserted user.
 
     Raises:
       UsernameAlreadyExistsError: If the username already exists.
@@ -34,20 +54,21 @@ async def insert_user(conn: PoolAcquireContext, **kwargs: Any) -> UserEntity:
     """
     try:
         inserted = await _queries.insert_user(conn, **kwargs)
-        return UserEntity(user_id=inserted["uuser_id"], **inserted)
+        inserted["user_id"] = inserted.pop("uuser_id")
+        return User(**inserted)
     except asyncpg.UniqueViolationError as e:
         msg = str(e)
         if "username" in msg:
-            raise UsernameAlreadyExistsError from e
+            raise exceptions.UsernameAlreadyExistsError from e
         if "email" in msg:
-            raise EmailAlreadyExistsError from e
+            raise exceptions.EmailAlreadyExistsError from e
         raise e from e
 
 
-@with_connection
+@db.with_connection
 async def get_user_by_id(
-    conn: PoolAcquireContext, user_id: UUID
-) -> Optional[UserEntity]:
+    conn: asyncpg.pool.PoolAcquireContext, user_id: uuid.UUID
+) -> Optional[User]:
     """Returns the user with the specified user_id from the database.
 
     Args:
@@ -55,19 +76,20 @@ async def get_user_by_id(
       conn: A database connection.
 
     Returns:
-      A UserEntity representing the searched user, None if the user was not
+      A User representing the searched user, None if the user was not
       found.
     """
     searched = await _queries.get_user_by_id(conn, uuser_id=user_id)
     if not searched:
         return None
-    return UserEntity(user_id=searched["uuser_id"], **searched)
+    searched["user_id"] = searched.pop("uuser_id")
+    return User(**searched)
 
 
-@with_connection
+@db.with_connection
 async def update_user_by_id(
-    conn: PoolAcquireContext, user_id: UUID, **kwargs: Any
-) -> Optional[UserEntity]:
+    conn: asyncpg.pool.PoolAcquireContext, user_id: uuid.UUID, **kwargs: Any
+) -> Optional[User]:
     """
     Updates the data of a user with the specified user_id in the database. Not
     provided fields won't be updated.
@@ -79,7 +101,7 @@ async def update_user_by_id(
         username="snowball99".
 
     Returns:
-      A UserEntity representing the updated user, None if the user was not
+      A User representing the updated user, None if the user was not
       updated.
 
     Raises:
@@ -98,27 +120,28 @@ async def update_user_by_id(
         "date_joined",
     )
     null_fields = ("last_login",)
-    update_data = updater_fields(fields, null_fields, **kwargs)
+    update_data = db.updater_fields(fields, null_fields, **kwargs)
     try:
         updated = await _queries.update_user_by_id(
             conn, uuser_id=user_id, **update_data
         )
         if not updated:
             return None
-        return UserEntity(user_id=updated["uuser_id"], **updated)
+        updated["user_id"] = updated.pop("uuser_id")
+        return User(**updated)
     except asyncpg.UniqueViolationError as e:
         msg = str(e)
         if "username" in msg:
-            raise UsernameAlreadyExistsError from e
+            raise exceptions.UsernameAlreadyExistsError from e
         if "email" in msg:
-            raise EmailAlreadyExistsError from e
+            raise exceptions.EmailAlreadyExistsError from e
         raise e from e
 
 
-@with_connection
+@db.with_connection
 async def delete_user_by_id(
-    conn: PoolAcquireContext, user_id: UUID
-) -> Optional[UserEntity]:
+    conn: asyncpg.pool.PoolAcquireContext, user_id: uuid.UUID
+) -> Optional[User]:
     """Deletes the user with the specified user_id from the database.
 
     Args:
@@ -126,10 +149,11 @@ async def delete_user_by_id(
       conn: A database connection.
 
     Returns:
-      A UserEntity representing the deleted user, None if the user was not
+      A User representing the deleted user, None if the user was not
       deleted.
     """
     deleted = await _queries.delete_user_by_id(conn, uuser_id=user_id)
     if not deleted:
         return None
-    return UserEntity(user_id=deleted["uuser_id"], **deleted)
+    deleted["user_id"] = deleted.pop("uuser_id")
+    return User(**deleted)

@@ -1,5 +1,11 @@
+"""Application configuration module.
+
+Here the configuration from file ".env" gets loaded into a Python
+configparser.ConfigParser object.
+"""
+
 import configparser
-from pathlib import Path
+import pathlib
 
 settings = configparser.ConfigParser()
-settings.read(Path(__file__).resolve().parent / ".env")
+settings.read(pathlib.Path(__file__).resolve().parent / ".env")

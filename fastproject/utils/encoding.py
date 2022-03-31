@@ -1,13 +1,15 @@
+"""Utilities for encoding types."""
+
 import datetime
+import decimal
 import unicodedata
-from decimal import Decimal
 from typing import Any
 
 _PROTECTED_TYPES = (
     type(None),
     int,
     float,
-    Decimal,
+    decimal.Decimal,
     datetime.datetime,
     datetime.date,
     datetime.time,

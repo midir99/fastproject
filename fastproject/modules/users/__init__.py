@@ -1,3 +1,5 @@
+"""Init module."""
+
 from . import contypes, exceptions, models, repository, service
 from .controller import controller
 

@@ -1,18 +1,22 @@
+"""Utilities to validate passwords."""
+
+import difflib
 import gzip
+import pathlib
 import re
-from difflib import SequenceMatcher
-from pathlib import Path
 from typing import Optional
 
-from .exceptions import InvalidPasswordError
+from . import exceptions
 
-_PASSWORD_LIST_PATH = Path(__file__).resolve().parent / "common-passwords.txt.gz"
+_PASSWORD_LIST_PATH = (
+    pathlib.Path(__file__).resolve().parent / "common-passwords.txt.gz"
+)
 _PASSWORD_LIST = set()
 
 
 def _load_password_list(password_list_path=_PASSWORD_LIST_PATH) -> None:
     """Loads the password list."""
-    global _PASSWORD_LIST  # pylint: disable=global-statement
+    global _PASSWORD_LIST
     try:
         with gzip.open(password_list_path, "rt", encoding="utf-8") as file:
             _PASSWORD_LIST = {p.strip() for p in file}
@@ -24,7 +28,7 @@ def _load_password_list(password_list_path=_PASSWORD_LIST_PATH) -> None:
 def validate_password_length(password: str, min_length: int, max_length: int) -> str:
     """Validates that the password has the correct length."""
     if not min_length <= len(password) <= max_length:
-        raise InvalidPasswordError(
+        raise exceptions.InvalidPasswordError(
             f"Password can not have less than {min_length} or more "
             f"than {max_length} characters."
         )
@@ -34,7 +38,7 @@ def validate_password_length(password: str, min_length: int, max_length: int) ->
 def validate_password_not_numeric(password: str) -> str:
     """Validates that the password is not entirely numeric."""
     if password.isdigit():
-        raise InvalidPasswordError("Password can not be entirely numeric.")
+        raise exceptions.InvalidPasswordError("Password can not be entirely numeric.")
     return password
 
 
@@ -44,11 +48,11 @@ def exceeds_maximum_length_ratio(
     """
     Test that value is within a reasonable range of password.
 
-    The following ratio calculations are based on testing SequenceMatcher like
+    The following ratio calculations are based on testing difflib.SequenceMatcher like
     this:
 
     for i in range(0,6):
-      print(10**i, SequenceMatcher(a='A', b='A'*(10**i)).quick_ratio())
+      print(10**i, difflib.SequenceMatcher(a='A', b='A'*(10**i)).quick_ratio())
 
     which yields:
 
@@ -95,10 +99,10 @@ def validate_password_not_similar_to_user_attributes(
             if exceeds_maximum_length_ratio(password_lower, max_similarity, part):
                 continue
             if (
-                SequenceMatcher(a=password_lower, b=part).quick_ratio()
+                difflib.SequenceMatcher(a=password_lower, b=part).quick_ratio()
                 >= max_similarity
             ):
-                raise InvalidPasswordError(
+                raise exceptions.InvalidPasswordError(
                     "The password is very similar to " f"the {attr}"
                 )
     return password
@@ -112,7 +116,7 @@ def validate_password_not_common(password: str) -> None:
     if not _PASSWORD_LIST:
         _load_password_list()
     if password.lower().strip() in _PASSWORD_LIST:
-        raise InvalidPasswordError("Password is too common.")
+        raise exceptions.InvalidPasswordError("Password is too common.")
     return password
 
 

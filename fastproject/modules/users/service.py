@@ -1,16 +1,16 @@
+"""Service module."""
+
 import datetime
+import uuid
 import zoneinfo
 from typing import Any, Optional
-from uuid import UUID
 
-from ...config import settings
-from ...utils.encoding import normalize_str
-from . import repository
-from .models import UserEntity
-from .password_hashing import make_password
+from ... import config
+from ...utils import encoding
+from . import password_hashing, repository
 
 
-async def insert_user(
+async def create_user(
     username: str,
     email: str,
     first_name: str,
@@ -21,7 +21,7 @@ async def insert_user(
     is_staff=False,
     is_active=True,
     last_login: Optional[datetime.datetime] = None,
-) -> UserEntity:
+) -> repository.User:
     """Inserts a user into the database.
 
     Args:
@@ -37,20 +37,20 @@ async def insert_user(
       last_login: The datetime the user last logged in.
 
     Returns:
-      A UserEntity representing the created user.
+      A repository.User representing the created user.
 
     Raises:
       UsernameAlreadyExistsError: If the username already exists.
       EmailAlreadyExistsError: If the email already exists.
     """
-    username = normalize_str(username)
-    email = normalize_str(email)
-    first_name = normalize_str(first_name)
-    last_name = normalize_str(last_name)
+    username = encoding.normalize_str(username)
+    email = encoding.normalize_str(email)
+    first_name = encoding.normalize_str(first_name)
+    last_name = encoding.normalize_str(last_name)
     if date_joined is None:
-        tzinfo = zoneinfo.ZoneInfo(settings["APPLICATION"]["timezone"])
+        tzinfo = zoneinfo.ZoneInfo(config.settings["APPLICATION"]["timezone"])
         date_joined = datetime.datetime.now(tz=tzinfo)
-    password_hash = make_password(password)
+    password_hash = password_hashing.make_password(password)
     return await repository.insert_user(
         username=username,
         email=email,
@@ -65,20 +65,22 @@ async def insert_user(
     )
 
 
-async def get_user_by_id(user_id: UUID) -> Optional[UserEntity]:
+async def get_user_by_id(user_id: uuid.UUID) -> Optional[repository.User]:
     """Returns the user with the specified user_id from the database.
 
     Args:
       user_id: The user_id of the searched user.
 
     Returns:
-      A UserEntity representing the searched user, None if the user was not
+      A repository.User representing the searched user, None if the user was not
       found.
     """
     return await repository.get_user_by_id(user_id)
 
 
-async def update_user_by_id(user_id: UUID, **kwargs: Any) -> Optional[UserEntity]:
+async def update_user_by_id(
+    user_id: uuid.UUID, **kwargs: Any
+) -> Optional[repository.User]:
     """Updates the data of the user with the specified user_id in the database.
 
     Args:
@@ -96,7 +98,7 @@ async def update_user_by_id(user_id: UUID, **kwargs: Any) -> Optional[UserEntity
       **last_login (datetime.datetime): The datetime the user last logged in.
 
     Returns:
-      A UserEntity representing the updated user, None if the user was not
+      A repository.User representing the updated user, None if the user was not
       updated.
 
     Raises:
@@ -104,26 +106,26 @@ async def update_user_by_id(user_id: UUID, **kwargs: Any) -> Optional[UserEntity
       EmailAlreadyExistsError: If the email already exists.
     """
     if "username" in kwargs:
-        kwargs["username"] = normalize_str(kwargs["username"])
+        kwargs["username"] = encoding.normalize_str(kwargs["username"])
     if "email" in kwargs:
-        kwargs["email"] = normalize_str(kwargs["email"])
+        kwargs["email"] = encoding.normalize_str(kwargs["email"])
     if "first_name" in kwargs:
-        kwargs["first_name"] = normalize_str(kwargs["first_name"])
+        kwargs["first_name"] = encoding.normalize_str(kwargs["first_name"])
     if "last_name" in kwargs:
-        kwargs["last_name"] = normalize_str(kwargs["last_name"])
+        kwargs["last_name"] = encoding.normalize_str(kwargs["last_name"])
     if "password" in kwargs:
-        kwargs["password"] = make_password(kwargs["password"])
+        kwargs["password"] = password_hashing.make_password(kwargs["password"])
     return await repository.update_user_by_id(user_id, **kwargs)
 
 
-async def delete_user_by_id(user_id: UUID) -> Optional[UserEntity]:
+async def delete_user_by_id(user_id: uuid.UUID) -> Optional[repository.User]:
     """Deletes the user with the specified user_id from the database.
 
     Args:
       user_id: The user_id of the user that will be deleted.
 
     Returns:
-      A UserEntity representing the deleted user, None if the user was not
+      A repository.User representing the deleted user, None if the user was not
       deleted.
     """
     return await repository.delete_user_by_id(user_id)

@@ -1,4 +1,4 @@
-"""Utils to be used in repository modules."""
+"""Utilities to be used in repository modules."""
 
 from collections.abc import Iterable
 from typing import Any, Optional
@@ -74,8 +74,5 @@ def updater_fields(
         null_fields = ()
     return {
         **{field: kwargs.get(field) for field in fields + null_fields},
-        **{
-            f"{updater_flag_preffix}{field}": True if field in kwargs else False
-            for field in null_fields
-        },
+        **{f"{updater_flag_preffix}{field}": field in kwargs for field in null_fields},
     }

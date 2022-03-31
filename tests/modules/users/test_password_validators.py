@@ -1,8 +1,8 @@
+"""Tests for module modules.users.password_validators."""
+
 import pytest
 
-from fastproject.modules.users.exceptions import InvalidPasswordError
-from fastproject.modules.users.password_validators import (
-    validate_password_length, validate_password_not_numeric)
+from fastproject.modules.users import exceptions, password_validators
 
 
 @pytest.mark.parametrize(
@@ -18,11 +18,11 @@ from fastproject.modules.users.password_validators import (
 def test_validate_password_length(password, min_len, max_len, raises):
     if raises:
         with pytest.raises(
-            InvalidPasswordError, match="Password can not have less than"
+            exceptions.InvalidPasswordError, match="Password can not have less than"
         ):
-            validate_password_length(password, min_len, max_len)
+            password_validators.validate_password_length(password, min_len, max_len)
     else:
-        validate_password_length(password, min_len, max_len)
+        password_validators.validate_password_length(password, min_len, max_len)
 
 
 @pytest.mark.parametrize(
@@ -31,8 +31,9 @@ def test_validate_password_length(password, min_len, max_len, raises):
 def test_validate_password_not_numeric(password, raises):
     if raises:
         with pytest.raises(
-            InvalidPasswordError, match="Password can not be entirely numeric."
+            exceptions.InvalidPasswordError,
+            match="Password can not be entirely numeric.",
         ):
-            validate_password_not_numeric(password)
+            password_validators.validate_password_not_numeric(password)
     else:
-        validate_password_not_numeric(password)
+        password_validators.validate_password_not_numeric(password)

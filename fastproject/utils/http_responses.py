@@ -1,10 +1,10 @@
 """Generic FastAPI HTTP responses."""
 
-from .rmodels import DetailMessage
+from . import rmodels
 
 NotFoundResponse = {
     "description": "Not Found",
-    "model": DetailMessage,
+    "model": rmodels.DetailMessage,
 }
 
-ConflictResponse = {"description": "Conflict Error", "model": DetailMessage}
+ConflictResponse = {"description": "Conflict Error", "model": rmodels.DetailMessage}
